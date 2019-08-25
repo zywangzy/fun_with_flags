@@ -3,6 +3,7 @@ create TABLE story (
 	story_name	varchar (128)	NOT NULL,
 	story_type	integer		NOT NULL,
 	status		integer		NOT NULL,
+	estimate	integer,
 	created_at	timestamp	NOT NULL,
 	created_by	integer		REFERENCES users(user_id) ON DELETE RESTRICT,
 	closed_at	timestamp	NOT NULL,

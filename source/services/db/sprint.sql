@@ -8,4 +8,4 @@ CREATE TABLE sprint (
 	closed_at	timestamp,
 	begin_time	timestamp,
 	end_time	timestamp
-)
+);
