@@ -2,6 +2,7 @@ create TABLE story (
 	story_id	SERIAL		PRIMARY KEY,
 	story_name	VARCHAR (128)	NOT NULL,
 	story_type	INTEGER		NOT NULL,
+	status		INTEGER		NOT NULL,
 	created_at	TIMESTAMP	NOT NULL,
 	created_by	INTEGER		REFERENCES users(user_id) ON DELETE RESTRICT,
 	board_id	INTEGER		REFERENCES board(board_id) ON DELETE CASCADE,
