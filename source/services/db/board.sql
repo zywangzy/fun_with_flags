@@ -6,5 +6,5 @@ CREATE TABLE board (
 	user_id		integer 	REFERENCES users(user_id) ON DELETE CASCADE,
 	team_id		integer		REFERENCES team(team_id) ON DELETE CASCADE,
 	admin_id	integer		NOT NULL REFERENCES users(user_id) ON DELETE RESTRICT,
-	created_at	timestamp	NOT NULL,
+	created_at	timestamp	NOT NULL
 );

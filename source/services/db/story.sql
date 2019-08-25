@@ -1,4 +1,4 @@
-create TABLE story (
+CREATE TABLE story (
 	story_id	SERIAL		PRIMARY KEY,
 	story_name	varchar (128)	NOT NULL,
 	story_type	integer		NOT NULL,
