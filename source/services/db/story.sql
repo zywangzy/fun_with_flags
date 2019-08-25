@@ -5,6 +5,8 @@ create TABLE story (
 	status		integer		NOT NULL,
 	created_at	timestamp	NOT NULL,
 	created_by	integer		REFERENCES users(user_id) ON DELETE RESTRICT,
+	closed_at	timestamp	NOT NULL,
+	closed_by	integer		REFERENCES users(user_id) ON DELETE RESTRICT,
 	board_id	integer		REFERENCES board(board_id) ON DELETE CASCADE,
 	epic_id		integer		REFERENCES epic(epic_id) ON DELETE RESTRICT,
 	assignee	integer		REFERENCES users(user_id),
