@@ -1,11 +1,11 @@
 CREATE TABLE sprint (
 	sprint_id	SERIAL		PRIMARY KEY,
-	sprint_num	INTEGER		NOT NULL,
-	sprint_name	VARCHAR (128)	NOT NULL,
-	board_id	INTEGER		REFERENCES board(board_id) ON DELETE CASCADE,
-	status		INTEGER		NOT NULL,
-	created_at	TIMESTAMP	NOT NULL,
-	closed_at	TIMESTAMP,
-	begin_time	TIMESTAMP,
-	end_time	TIMESTAMP
+	sprint_num	integer		NOT NULL,
+	sprint_name	varchar (128)	NOT NULL,
+	board_id	integer		REFERENCES board(board_id) ON DELETE CASCADE,
+	status		integer		NOT NULL,
+	created_at	timestamp	NOT NULL,
+	closed_at	timestamp,
+	begin_time	timestamp,
+	end_time	timestamp
 )

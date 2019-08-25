@@ -1,10 +1,10 @@
 CREATE TABLE users (
 	user_id     SERIAL	  PRIMARY KEY,
-	username    VARCHAR (32)  UNIQUE NOT NULL,
-	password    BYTEA	  NOT NULL,
-	salt        BYTEA	  NOT NULL,
-	email       VARCHAR (128) UNIQUE NOT NULL,
-	created_at  TIMESTAMP     NOT NULL,
-	last_login  TIMESTAMP,
-	avatar_id   CHAR (16)
+	username    varchar (32)  UNIQUE NOT NULL,
+	password    bytea	  NOT NULL,
+	salt        bytea	  NOT NULL,
+	email       varchar (128) UNIQUE NOT NULL,
+	created_at  timestamp     NOT NULL,
+	last_login  timestamp,
+	avatar_id   char (16)
 );

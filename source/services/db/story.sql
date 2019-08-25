@@ -1,14 +1,14 @@
 create TABLE story (
 	story_id	SERIAL		PRIMARY KEY,
-	story_name	VARCHAR (128)	NOT NULL,
-	story_type	INTEGER		NOT NULL,
-	status		INTEGER		NOT NULL,
-	created_at	TIMESTAMP	NOT NULL,
-	created_by	INTEGER		REFERENCES users(user_id) ON DELETE RESTRICT,
-	board_id	INTEGER		REFERENCES board(board_id) ON DELETE CASCADE,
-	epic_id		INTEGER		REFERENCES epic(epic_id) ON DELETE RESTRICT,
-	assignee	INTEGER		REFERENCES users(user_id),
-	reporter	INTEGER		REFERENCES users(user_id),
-	description	TEXT,
-	parent_story	INTEGER		REFERENCES story(story_id)
+	story_name	varchar (128)	NOT NULL,
+	story_type	integer		NOT NULL,
+	status		integer		NOT NULL,
+	created_at	timestamp	NOT NULL,
+	created_by	integer		REFERENCES users(user_id) ON DELETE RESTRICT,
+	board_id	integer		REFERENCES board(board_id) ON DELETE CASCADE,
+	epic_id		integer		REFERENCES epic(epic_id) ON DELETE RESTRICT,
+	assignee	integer		REFERENCES users(user_id),
+	reporter	integer		REFERENCES users(user_id),
+	description	text,
+	parent_story	integer		REFERENCES story(story_id)
 );
