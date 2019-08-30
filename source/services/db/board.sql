@@ -8,3 +8,4 @@ CREATE TABLE board (
 	admin_id	integer		NOT NULL REFERENCES users(user_id) ON DELETE RESTRICT,
 	created_at	timestamp	NOT NULL
 );
+

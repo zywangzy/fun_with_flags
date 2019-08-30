@@ -8,3 +8,4 @@ CREATE TABLE users (
 	last_login  timestamp,
 	avatar_id   char (16)
 );
+

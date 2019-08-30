@@ -5,3 +5,4 @@ CREATE TABLE team (
 	created_by	integer		REFERENCES users(user_id),
 	admin_id	integer		REFERENCES users(user_id)
 );
+

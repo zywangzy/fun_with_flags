@@ -4,3 +4,4 @@ CREATE TABLE epic (
 	epic_note	text,
 	board_id	integer		REFERENCES board(board_id) ON DELETE CASCADE
 );
+
