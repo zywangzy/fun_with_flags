@@ -3,3 +3,4 @@ CREATE TABLE teammates (
 	team_id		integer		REFERENCES team(team_id),
 	PRIMARY KEY (user_id, team_id)
 );
+

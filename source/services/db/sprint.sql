@@ -9,3 +9,4 @@ CREATE TABLE sprint (
 	begin_time	timestamp,
 	end_time	timestamp
 );
+

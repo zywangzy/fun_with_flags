@@ -15,3 +15,4 @@ CREATE TABLE story (
 	description	text,
 	parent_story	integer		REFERENCES story(story_id)
 );
+
