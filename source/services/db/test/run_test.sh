@@ -1,7 +1,7 @@
 #! /bin/bash
 
 echo "Creating init_db.sql..."
-cat ../users.sql ../team.sql ../teammates.sql ../board.sql ../epic.sql ../sprint.sql ../story.sql > init_db.sql
+cat ../users.sql ../team.sql ../teammates.sql ../project.sql ../board.sql ../epic.sql ../sprint.sql ../story.sql > init_db.sql
 echo "Building docker image..."
 docker build -t test-postgres .
 echo "Cleaning up test environment..."
