@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+        dbpostgres:
+                build:
+                        context: ./db-setup
+                        dockerfile: ./Dockerfile
+                ports:
+                        - "5432:5432"
+                environment:
+                        POSTGRES_USER: docker
+                        POSTGRES_PASSWORD: docker
+                        POSTGRES_DB: docker
+        dbclient-test:
+                build:
+                        context: ..
+                        dockerfile: ./test/dbclient-test/Dockerfile
+                environment:
+                        PORT: 8080
+                links:
+                        - dbpostgres
+                restart: always

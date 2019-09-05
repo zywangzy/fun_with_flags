@@ -1,2 +1,3 @@
-source/services/db/test/init_db.sql
-source/services/db/test/docker
+.idea
+source/services/db/test/db-setup/init_db.sql
+source/services/db/test/db-setup/docker
