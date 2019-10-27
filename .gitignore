@@ -1,2 +1,4 @@
+.idea
+venv3
 source/services/db/test/init_db.sql
 source/services/db/test/docker
