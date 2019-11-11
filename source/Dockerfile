@@ -18,5 +18,8 @@ RUN pip install -r requirements.txt
 COPY funwithflags/. ./funwithflags
 COPY tests/. ./tests
 
+# Setup port
+ENV PORT=8080
+
 # Command to startup the container
 CMD ["pytest"]

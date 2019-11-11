@@ -1,6 +1,7 @@
 """Module for the Postgres database gateway."""
 from configparser import ConfigParser
 import logging
+from time import sleep
 from typing import List, Mapping
 
 import psycopg2
@@ -20,7 +21,28 @@ class PostgresGateway(DbGateway):
                  user: str,
                  password: str):
         self._conn_str = f"host={host} port={port} dbname={dbname} user={user} password={password}"
-        self._conn = psycopg2.connect(self._conn_str)
+        self._conn_retry_limit = 20
+        self._conn_retry_interval = 2
+        self._active = False
+
+        retry = 0
+        for _ in range(self._conn_retry_limit):
+            try:
+                retry += 1
+                self._conn = psycopg2.connect(self._conn_str)
+            except Exception as e:
+                logger.info(f"PostgresGateway connection failed, will retry for #{retry} "
+                            f"in {self._conn_retry_interval} seconds. Error: {e}")
+                sleep(self._conn_retry_interval)
+                continue
+            else:
+                self._active = True
+                break
+        if not self._active:
+            logger.error(f"PostgresGateway connection failed after {retry} times, stopping retry.")
+            raise Exception("PostgresGateway connection failure after retries.")
+        else:
+            logger.info("PostgresGateway connection success!")
 
     def query(self, command: str) -> List:
         """Given a `command` string, do the query and return a list of results.

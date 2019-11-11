@@ -3,8 +3,7 @@ version: '3'
 services:
         dbpostgres:
                 build:
-                        context: ../db/test/db-setup
-                        dockerfile: ./Dockerfile
+                        context: ../db/test
                 ports:
                         - "5432:5432"
                 environment:
@@ -13,8 +12,7 @@ services:
                         POSTGRES_DB: postgres
         dbclient-test:
                 build:
-                        context: ../db
-                        dockerfile: ./test/dbclient-test/Dockerfile
+                        context: ..
                 environment:
                         PORT: 8080
                 links:
