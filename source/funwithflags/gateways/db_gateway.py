@@ -1,8 +1,9 @@
 """Module for the Postgres database gateway."""
 from configparser import ConfigParser
+from datetime import datetime
 import logging
 from time import sleep
-from typing import List, Mapping
+from typing import Any, List, Mapping
 
 import psycopg2
 
@@ -44,22 +45,62 @@ class PostgresGateway(DbGateway):
         else:
             logger.info("PostgresGateway connection success!")
 
-    def query(self, command: str) -> List:
-        """Given a `command` string, do the query and return a list of results.
+    def __del__(self):
+        """Destructor.
         """
-        return []
+        if self._active:
+            self.deactivate()
+
+    def deactivate(self):
+        """Deactivate the gateway. Close the connection.
+        """
+        self._active = False
+        self._conn.close()
+
+    def query(self, query: str, *args) -> Any:
+        """Given a `query` string, do the query and return result.
+        """
+        try:
+            cur = self._conn.cursor()
+            cur.execute(query, args)
+            result = cur.fetchone()
+            self._conn.commit()
+            cur.close()
+            return result
+        except (Exception, psycopg2.DatabaseError) as e:
+            logger.error(f"PostgresGateway failed on query: '{query}' with {args}.")
+            return None
 
     def create_user(self, user: User) -> int:
         """Given a `user` object, create user entry in database table and return
         an integer of `user_id` of created user.
         """
-        return 0
+        query = """INSERT INTO users(username, nickname, email, password, salt, created_at) 
+                   VALUES (%s, %s, %s, %s, %s, %s) RETURNING user_id"""
+        user_id = self.query(query,
+                             user.username,
+                             user.nickname,
+                             user.email,
+                             user.password,
+                             user.salt,
+                             datetime.now())
+        return user_id if user_id is not None else -1
 
     def read_user(self, user_id: int) -> User:
         """Given a `user_id` integer, read user info from database and return a
         `User` object.
         """
-        return User()
+        query = """SELECT * FROM users WHERE user_id = %s"""
+        result = self.query(query, user_id)
+        if result is None:
+            return User(valid=False)
+        return User(user_id=result[0],
+                    username=result[1],
+                    nickname=result[2],
+                    password=bytearray(result[3]),
+                    salt=bytearray(result[4]),
+                    email=result[5],
+                    created_at=result[6])
 
 
 def read_postgres_config(filename='database.ini', section='postgresql') -> Mapping[str, str]:
@@ -67,7 +108,6 @@ def read_postgres_config(filename='database.ini', section='postgresql') -> Mappi
     parser = ConfigParser()
     parser.read(filename)
     db = {}
-    # print(parser.sections())
     if parser.has_section(section):
         params = parser.items(section)
         for param in params:

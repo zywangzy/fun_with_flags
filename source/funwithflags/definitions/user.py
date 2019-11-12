@@ -15,3 +15,4 @@ class User:
     password: bytearray
     salt: bytearray
     created_at: datetime
+    valid: bool
