@@ -34,16 +34,3 @@ def test_read_postgres_config():
 
         # Then
         assert expected_config == config
-
-
-def test_make_postgres_gateway():
-    with tempfile.NamedTemporaryFile(mode='w+t', suffix='.ini') as temp_file:
-        # Given
-        temp_file.write(DATABASE_CONFIG)
-        temp_file.seek(0)
-
-        # When
-        db_gateway = make_postgres_gateway(temp_file.name)
-
-        # Then
-        assert db_gateway is not None

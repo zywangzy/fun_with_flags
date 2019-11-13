@@ -9,6 +9,7 @@ import psycopg2
 
 from .db_gateway_abc import DbGateway
 from funwithflags.definitions import User
+from funwithflags.entities.db_util import read_postgres_config
 
 
 logger = logging.getLogger(__name__)
@@ -83,8 +84,8 @@ class PostgresGateway(DbGateway):
                              user.email,
                              user.password,
                              user.salt,
-                             datetime.now())
-        return user_id if user_id is not None else -1
+                             user.created_at)
+        return user_id[0] if user_id is not None and len(user_id) == 1 else -1
 
     def read_user(self, user_id: int) -> User:
         """Given a `user_id` integer, read user info from database and return a
@@ -100,21 +101,8 @@ class PostgresGateway(DbGateway):
                     password=bytearray(result[3]),
                     salt=bytearray(result[4]),
                     email=result[5],
-                    created_at=result[6])
-
-
-def read_postgres_config(filename='database.ini', section='postgresql') -> Mapping[str, str]:
-    """Read configuration file and return a dictionary mapping from field name to field value."""
-    parser = ConfigParser()
-    parser.read(filename)
-    db = {}
-    if parser.has_section(section):
-        params = parser.items(section)
-        for param in params:
-            db[param[0]] = param[1]
-    else:
-        raise Exception(f"{filename} does not have section {section}, sections are {parser.sections()}")
-    return db
+                    created_at=result[6],
+                    valid=True)
 
 
 def make_postgres_gateway(filename='database.ini') -> PostgresGateway:

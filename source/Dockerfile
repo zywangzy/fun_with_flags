@@ -17,9 +17,10 @@ RUN pip install -r requirements.txt
 # Docker container in /usr/src/app directory
 COPY funwithflags/. ./funwithflags
 COPY tests/. ./tests
+COPY integration_tests/. ./integration_tests
 
 # Setup port
 ENV PORT=8080
 
 # Command to startup the container
-CMD ["pytest"]
+CMD ["pytest", "tests", "integration_tests"]
