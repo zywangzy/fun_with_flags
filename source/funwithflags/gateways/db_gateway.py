@@ -16,13 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 class PostgresGateway(DbGateway):
-    def __init__(self,
-                 host: str,
-                 port: int,
-                 dbname: str,
-                 user: str,
-                 password: str):
-        self._conn_str = f"host={host} port={port} dbname={dbname} user={user} password={password}"
+    def __init__(self, host: str, port: int, dbname: str, user: str, password: str):
+        self._conn_str = (
+            f"host={host} port={port} dbname={dbname} user={user} password={password}"
+        )
         self._conn_retry_limit = 20
         self._conn_retry_interval = 2
         self._active = False
@@ -33,15 +30,19 @@ class PostgresGateway(DbGateway):
                 retry += 1
                 self._conn = psycopg2.connect(self._conn_str)
             except Exception as e:
-                logger.info(f"PostgresGateway connection failed, will retry for #{retry} "
-                            f"in {self._conn_retry_interval} seconds. Error: {e}")
+                logger.info(
+                    f"PostgresGateway connection failed, will retry for #{retry} "
+                    f"in {self._conn_retry_interval} seconds. Error: {e}"
+                )
                 sleep(self._conn_retry_interval)
                 continue
             else:
                 self._active = True
                 break
         if not self._active:
-            logger.error(f"PostgresGateway connection failed after {retry} times, stopping retry.")
+            logger.error(
+                f"PostgresGateway connection failed after {retry} times, stopping retry."
+            )
             raise Exception("PostgresGateway connection failure after retries.")
         else:
             logger.info("PostgresGateway connection success!")
@@ -78,13 +79,15 @@ class PostgresGateway(DbGateway):
         """
         query = """INSERT INTO users(username, nickname, email, password, salt, created_at) 
                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING user_id"""
-        user_id = self.query(query,
-                             user.username,
-                             user.nickname,
-                             user.email,
-                             user.password,
-                             user.salt,
-                             user.created_at)
+        user_id = self.query(
+            query,
+            user.username,
+            user.nickname,
+            user.email,
+            user.password,
+            user.salt,
+            user.created_at,
+        )
         return user_id[0] if user_id is not None and len(user_id) == 1 else -1
 
     def read_user(self, user_id: int) -> User:
@@ -95,25 +98,29 @@ class PostgresGateway(DbGateway):
         result = self.query(query, user_id)
         if result is None:
             return User(valid=False)
-        return User(user_id=result[0],
-                    username=result[1],
-                    nickname=result[2],
-                    password=bytearray(result[3]),
-                    salt=bytearray(result[4]),
-                    email=result[5],
-                    created_at=result[6],
-                    valid=True)
+        return User(
+            user_id=result[0],
+            username=result[1],
+            nickname=result[2],
+            password=bytearray(result[3]),
+            salt=bytearray(result[4]),
+            email=result[5],
+            created_at=result[6],
+            valid=True,
+        )
 
 
-def make_postgres_gateway(filename='database.ini') -> PostgresGateway:
+def make_postgres_gateway(filename="database.ini") -> PostgresGateway:
     """Factory method to create a `PostgresGateway` object."""
     try:
         config = read_postgres_config(filename)
-        return PostgresGateway(host=config['host'],
-                               port=int(config['port']),
-                               dbname=config['dbname'],
-                               user=config['user'],
-                               password=config['password'])
+        return PostgresGateway(
+            host=config["host"],
+            port=int(config["port"]),
+            dbname=config["dbname"],
+            user=config["user"],
+            password=config["password"],
+        )
     except KeyError as e:
         logger.error(f"Invalid database config file: {e}")
         raise e

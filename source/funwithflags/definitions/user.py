@@ -9,10 +9,10 @@ class User:
     """
 
     user_id: int = -1
-    username: str = ''
-    nickname: str = ''
-    email: str = ''
-    password: bytearray = b''
-    salt: bytearray = b''
+    username: str = ""
+    nickname: str = ""
+    email: str = ""
+    password: bytearray = b""
+    salt: bytearray = b""
     created_at: datetime = datetime.now()
     valid: bool = False

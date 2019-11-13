@@ -3,9 +3,7 @@ from datetime import datetime
 import pytest
 import tempfile
 
-from funwithflags.definitions import (
-    User,
-)
+from funwithflags.definitions import User
 from funwithflags.gateways.db_gateway import (
     make_postgres_gateway,
     # PostgresGateway,
@@ -23,7 +21,7 @@ CREATE_TIME = datetime.now()
 
 @pytest.fixture
 def pg_gateway():
-    with tempfile.NamedTemporaryFile(mode='w+t', suffix='.ini') as temp_file:
+    with tempfile.NamedTemporaryFile(mode="w+t", suffix=".ini") as temp_file:
         temp_file.write(DATABASE_CONFIG)
         temp_file.seek(0)
         return make_postgres_gateway(temp_file.name)
@@ -31,14 +29,16 @@ def pg_gateway():
 
 @pytest.fixture
 def example_user():
-    return User(user_id=1,
-                username='test',
-                nickname='nick',
-                email='test@example.com',
-                password=bytearray(b'123456'),
-                salt=bytearray(b'123'),
-                created_at=CREATE_TIME,
-                valid=True)
+    return User(
+        user_id=1,
+        username="test",
+        nickname="nick",
+        email="test@example.com",
+        password=bytearray(b"123456"),
+        salt=bytearray(b"123"),
+        created_at=CREATE_TIME,
+        valid=True,
+    )
 
 
 def test_make_postgres_gateway(pg_gateway):

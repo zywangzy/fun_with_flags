@@ -17,7 +17,7 @@ password=password
 
 
 def test_read_postgres_config():
-    with tempfile.NamedTemporaryFile(mode='w+t', suffix='.ini') as temp_file:
+    with tempfile.NamedTemporaryFile(mode="w+t", suffix=".ini") as temp_file:
         # Given
         expected_config = {
             "host": "dbpostgres",
