@@ -3,7 +3,6 @@ import tempfile
 
 from funwithflags.gateways.db_gateway import (
     read_postgres_config,
-    make_postgres_gateway,
 )
 
 

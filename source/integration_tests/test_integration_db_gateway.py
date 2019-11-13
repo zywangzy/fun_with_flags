@@ -1,11 +1,10 @@
 """Integration test for database gateway."""
-from dataclasses import fields
 from datetime import datetime
 import pytest
 import tempfile
 
 from funwithflags.definitions import User
-from funwithflags.gateways.db_gateway import make_postgres_gateway
+from funwithflags.gateways import make_postgres_gateway
 
 DATABASE_CONFIG = """[postgresql]
 host=dbpostgres

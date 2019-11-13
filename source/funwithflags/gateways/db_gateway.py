@@ -3,13 +3,13 @@ from configparser import ConfigParser
 from datetime import datetime
 import logging
 from time import sleep
-from typing import Any, List, Mapping
+from typing import Any
 
 import psycopg2
 
 from .db_gateway_abc import DbGateway
 from funwithflags.definitions import User
-from funwithflags.entities.db_util import read_postgres_config
+from funwithflags.entities import read_postgres_config
 
 
 logger = logging.getLogger(__name__)
