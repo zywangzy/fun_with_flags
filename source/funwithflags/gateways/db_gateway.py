@@ -65,7 +65,11 @@ class PostgresGateway(DbGateway):
         try:
             cur = self._conn.cursor()
             cur.execute(query, args)
-            result = cur.fetchone()
+            result = (
+                cur.fetchone()
+                if not query.strip().upper().startswith("DELETE")
+                else cur.rowcount
+            )
             self._conn.commit()
             cur.close()
             return result
@@ -110,6 +114,16 @@ class PostgresGateway(DbGateway):
             created_at=result[6],
             valid=True,
         )
+
+    def delete_user(self, user_id: int) -> bool:
+        """Given a `user_id` integer, delete user from database table and return a
+        boolean indicating if the operation succeeds or not.
+        """
+        if user_id <= 0:
+            return False
+        query = """DELETE FROM users WHERE user_id = %s"""
+        result = self.query(query, user_id)
+        return result == 1
 
 
 def make_postgres_gateway(filename="database.ini") -> PostgresGateway:

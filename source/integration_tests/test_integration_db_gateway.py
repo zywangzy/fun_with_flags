@@ -89,9 +89,17 @@ def test_postgres_gateway_read_user(pg_gateway, example_user):
     "user_id,expected", [(-1, User(valid=False)), (0, User(valid=False))]
 )
 def test_postgres_gateway_read_user_failure(pg_gateway, user_id, expected):
-    # Expected
-    expected_user = User(valid=False)
     # When
     user = pg_gateway.read_user(user_id)
     # Then
-    assert compare_users_without_created_at(expected_user, user)
+    assert compare_users_without_created_at(expected, user)
+
+
+@pytest.mark.parametrize(
+    "user_id,expected", [(-1, False), (0, False), (1, True), (2, False)]
+)
+def test_postgres_gateway_delete_user(pg_gateway, user_id, expected):
+    # When
+    result = pg_gateway.delete_user(user_id)
+    # Then
+    assert expected == result
