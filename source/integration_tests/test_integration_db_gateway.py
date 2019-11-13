@@ -1,13 +1,11 @@
 """Integration test for database gateway."""
+from dataclasses import fields
 from datetime import datetime
 import pytest
 import tempfile
 
 from funwithflags.definitions import User
-from funwithflags.gateways.db_gateway import (
-    make_postgres_gateway,
-    # PostgresGateway,
-)
+from funwithflags.gateways.db_gateway import make_postgres_gateway
 
 DATABASE_CONFIG = """[postgresql]
 host=dbpostgres
@@ -41,6 +39,18 @@ def example_user():
     )
 
 
+def compare_users_without_created_at(user1: User, user2: User):
+    return (
+        user1.user_id == user2.user_id
+        and user1.username == user2.username
+        and user1.nickname == user2.nickname
+        and user1.email == user2.email
+        and user1.password == user2.password
+        and user1.salt == user2.salt
+        and user1.valid == user2.valid
+    )
+
+
 def test_make_postgres_gateway(pg_gateway):
     # Then
     assert pg_gateway is not None
@@ -55,6 +65,17 @@ def test_postgres_gateway_create_user(pg_gateway, example_user):
     assert expected_user_id == user_id
 
 
+def test_postgres_gateway_create_user_failure(pg_gateway, example_user):
+    """When creating user with duplicate info, query should fail and return -1.
+    """
+    # Expected
+    expected_user_id = -1
+    # When
+    user_id = pg_gateway.create_user(example_user)
+    # Then
+    assert expected_user_id == user_id
+
+
 def test_postgres_gateway_read_user(pg_gateway, example_user):
     # Expected
     expected_user = example_user
@@ -62,3 +83,15 @@ def test_postgres_gateway_read_user(pg_gateway, example_user):
     user = pg_gateway.read_user(example_user.user_id)
     # Then
     assert expected_user == user
+
+
+@pytest.mark.parametrize(
+    "user_id,expected", [(-1, User(valid=False)), (0, User(valid=False))]
+)
+def test_postgres_gateway_read_user_failure(pg_gateway, user_id, expected):
+    # Expected
+    expected_user = User(valid=False)
+    # When
+    user = pg_gateway.read_user(user_id)
+    # Then
+    assert compare_users_without_created_at(expected_user, user)

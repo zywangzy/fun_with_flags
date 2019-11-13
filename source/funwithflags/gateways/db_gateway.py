@@ -94,6 +94,8 @@ class PostgresGateway(DbGateway):
         """Given a `user_id` integer, read user info from database and return a
         `User` object.
         """
+        if user_id <= 0:
+            return User(valid=False)
         query = """SELECT * FROM users WHERE user_id = %s"""
         result = self.query(query, user_id)
         if result is None:
