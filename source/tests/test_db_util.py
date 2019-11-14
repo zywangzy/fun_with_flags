@@ -1,7 +1,8 @@
 import pytest
 import tempfile
 
-from funwithflags.gateways.db_gateway import (
+from funwithflags.entities import (
+    generate_update_params,
     read_postgres_config,
 )
 
@@ -33,3 +34,26 @@ def test_read_postgres_config():
 
         # Then
         assert expected_config == config
+
+
+@pytest.mark.parametrize(
+    "uid,kwargs,expected",
+    [
+        (0, dict(), ("", tuple())),
+        (
+            1,
+            {"username": "testname", "randomname": "something"},
+            ("username = %s", ("testname", 1)),
+        ),
+        (
+            300,
+            {"password": b"k4b67a", "salt": b"h345", "email": "abc@some.com"},
+            ("password = %s, email = %s", (b"k4b67a", "abc@some.com", 300)),
+        ),
+    ],
+)
+def test_generate_update_params(uid, kwargs, expected):
+    # When
+    result = generate_update_params(uid, **kwargs)
+    # Then
+    assert expected == result

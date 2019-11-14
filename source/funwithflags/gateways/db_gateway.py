@@ -9,7 +9,7 @@ import psycopg2
 
 from .db_gateway_abc import DbGateway
 from funwithflags.definitions import User
-from funwithflags.entities import read_postgres_config
+from funwithflags.entities import generate_update_params, read_postgres_config
 
 
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class PostgresGateway(DbGateway):
             cur.execute(query, args)
             result = (
                 cur.fetchone()
-                if not query.strip().upper().startswith("DELETE")
+                if not query.lstrip().upper().startswith(("UPDATE", "DELETE"))
                 else cur.rowcount
             )
             self._conn.commit()
@@ -114,6 +114,17 @@ class PostgresGateway(DbGateway):
             created_at=result[6],
             valid=True,
         )
+
+    def update_user(self, user_id: int, **kwargs) -> bool:
+        """Given a `user_id` integer and keyword only arguments, update fields
+        specified in `kwargs`. Return a boolean indicating if update succeeds.
+        """
+        field_names, field_vals = generate_update_params(user_id, **kwargs)
+        if user_id <= 0 or len(field_vals) == 0:
+            return False
+        query = f"""UPDATE users SET {field_names} WHERE user_id = %s"""
+        result = self.query(query, *field_vals)
+        return result == 1
 
     def delete_user(self, user_id: int) -> bool:
         """Given a `user_id` integer, delete user from database table and return a

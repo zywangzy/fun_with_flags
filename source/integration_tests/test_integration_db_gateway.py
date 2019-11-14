@@ -14,6 +14,16 @@ user=service
 password=password
 """
 CREATE_TIME = datetime.now()
+EXAMPLE_USER = User(
+    user_id=1,
+    username="test",
+    nickname="nick",
+    email="test@example.com",
+    password=bytearray(b"123456"),
+    salt=bytearray(b"123"),
+    created_at=CREATE_TIME,
+    valid=True,
+)
 
 
 @pytest.fixture
@@ -26,16 +36,7 @@ def pg_gateway():
 
 @pytest.fixture
 def example_user():
-    return User(
-        user_id=1,
-        username="test",
-        nickname="nick",
-        email="test@example.com",
-        password=bytearray(b"123456"),
-        salt=bytearray(b"123"),
-        created_at=CREATE_TIME,
-        valid=True,
-    )
+    return EXAMPLE_USER
 
 
 def compare_users_without_created_at(user1: User, user2: User):
@@ -84,14 +85,47 @@ def test_postgres_gateway_read_user(pg_gateway, example_user):
     assert expected_user == user
 
 
-@pytest.mark.parametrize(
-    "user_id,expected", [(-1, User(valid=False)), (0, User(valid=False))]
-)
+@pytest.mark.parametrize("user_id,expected", [(-1, User()), (0, User())])
 def test_postgres_gateway_read_user_failure(pg_gateway, user_id, expected):
     # When
     user = pg_gateway.read_user(user_id)
     # Then
     assert compare_users_without_created_at(expected, user)
+
+
+@pytest.mark.parametrize(
+    "user_id,kwargs,expected",
+    [
+        (0, {}, (False, User())),
+        (
+            1,
+            {
+                "username": "newtest",
+                "password": bytearray(b"654321"),
+                "salt": bytearray(b"321"),
+            },
+            (
+                True,
+                User(
+                    user_id=1,
+                    username="newtest",
+                    nickname="nick",
+                    email="test@example.com",
+                    password=bytearray(b"654321"),
+                    salt=bytearray(b"123"),
+                    created_at=CREATE_TIME,
+                    valid=True,
+                ),
+            ),
+        ),
+    ],
+)
+def test_postgres_gateway_update_user(pg_gateway, user_id, kwargs, expected):
+    # When
+    update_result = pg_gateway.update_user(user_id, **kwargs)
+    user = pg_gateway.read_user(user_id)
+    # Then
+    assert (update_result, user) == expected
 
 
 @pytest.mark.parametrize(
