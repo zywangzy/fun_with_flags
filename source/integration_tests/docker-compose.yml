@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+        dbpostgres:
+                build:
+                        context: ../db/test
+                ports:
+                        - "5432:5432"
+                environment:
+                        POSTGRES_USER: service
+                        POSTGRES_PASSWORD: password
+                        POSTGRES_DB: postgres
+        dbclient-test:
+                build:
+                        context: ..
+                environment:
+                        PORT: 8080
+                links:
+                        - dbpostgres
+                restart: always
