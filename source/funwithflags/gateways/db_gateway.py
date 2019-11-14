@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 class PostgresGateway(DbGateway):
     def __init__(self, host: str, port: int, dbname: str, user: str, password: str):
+        """Constructor. Try to connect to Postgres database with given parameters. Will retry after connection failure
+        for up to 20 times, each time wait for 2 seconds. Raises an exception if all retry fails.
+        """
         self._conn_str = (
             f"host={host} port={port} dbname={dbname} user={user} password={password}"
         )
@@ -79,7 +82,7 @@ class PostgresGateway(DbGateway):
 
     def create_user(self, user: User) -> int:
         """Given a `user` object, create user entry in database table and return
-        an integer of `user_id` of created user.
+        an integer of `user_id` of created user. Returns -1 if creation fails.
         """
         query = """INSERT INTO users(username, nickname, email, password, salt, created_at) 
                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING user_id"""
@@ -138,7 +141,8 @@ class PostgresGateway(DbGateway):
 
 
 def make_postgres_gateway(filename="database.ini") -> PostgresGateway:
-    """Factory method to create a `PostgresGateway` object."""
+    """Factory method to create a `PostgresGateway` object.
+    """
     try:
         config = read_postgres_config(filename)
         return PostgresGateway(

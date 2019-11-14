@@ -6,6 +6,8 @@ import tempfile
 from funwithflags.definitions import User
 from funwithflags.gateways import make_postgres_gateway
 
+
+"""Test variables."""
 DATABASE_CONFIG = """[postgresql]
 host=dbpostgres
 port=5432
@@ -34,11 +36,6 @@ def pg_gateway():
         return make_postgres_gateway(temp_file.name)
 
 
-@pytest.fixture
-def example_user():
-    return EXAMPLE_USER
-
-
 def compare_users_without_created_at(user1: User, user2: User):
     return (
         user1.user_id == user2.user_id
@@ -56,37 +53,20 @@ def test_make_postgres_gateway(pg_gateway):
     assert pg_gateway is not None
 
 
-def test_postgres_gateway_create_user(pg_gateway, example_user):
-    # Expected
-    expected_user_id = example_user.user_id
-    # When
-    user_id = pg_gateway.create_user(example_user)
-    # Then
-    assert expected_user_id == user_id
-
-
-def test_postgres_gateway_create_user_failure(pg_gateway, example_user):
-    """When creating user with duplicate info, query should fail and return -1.
+@pytest.mark.parametrize("user,expected", [(EXAMPLE_USER, 1), (EXAMPLE_USER, -1)])
+def test_postgres_gateway_create_user(pg_gateway, user, expected):
+    """Success for the first time. When creating user with duplicate info, query should fail and return -1.
     """
-    # Expected
-    expected_user_id = -1
     # When
-    user_id = pg_gateway.create_user(example_user)
+    user_id = pg_gateway.create_user(user)
     # Then
-    assert expected_user_id == user_id
+    assert expected == user_id
 
 
-def test_postgres_gateway_read_user(pg_gateway, example_user):
-    # Expected
-    expected_user = example_user
-    # When
-    user = pg_gateway.read_user(example_user.user_id)
-    # Then
-    assert expected_user == user
-
-
-@pytest.mark.parametrize("user_id,expected", [(-1, User()), (0, User())])
-def test_postgres_gateway_read_user_failure(pg_gateway, user_id, expected):
+@pytest.mark.parametrize(
+    "user_id,expected", [(-1, User()), (0, User()), (1, EXAMPLE_USER)]
+)
+def test_postgres_gateway_read_user(pg_gateway, user_id, expected):
     # When
     user = pg_gateway.read_user(user_id)
     # Then
@@ -125,7 +105,7 @@ def test_postgres_gateway_update_user(pg_gateway, user_id, kwargs, expected):
     update_result = pg_gateway.update_user(user_id, **kwargs)
     user = pg_gateway.read_user(user_id)
     # Then
-    assert (update_result, user) == expected
+    assert expected == (update_result, user)
 
 
 @pytest.mark.parametrize(

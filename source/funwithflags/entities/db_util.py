@@ -6,7 +6,8 @@ from typing import List, Mapping
 def read_postgres_config(
     filename="database.ini", section="postgresql"
 ) -> Mapping[str, str]:
-    """Read configuration file and return a dictionary mapping from field name to field value."""
+    """Read configuration file and return a dictionary mapping from field name to field value.
+    """
     parser = ConfigParser()
     parser.read(filename)
     db = {}
