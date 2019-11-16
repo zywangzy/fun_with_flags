@@ -17,4 +17,4 @@ services:
                         PORT: 8080
                 links:
                         - dbpostgres
-                restart: always
+                restart: no # always
