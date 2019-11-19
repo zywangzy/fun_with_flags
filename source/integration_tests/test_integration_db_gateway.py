@@ -1,39 +1,9 @@
 """Integration test for database gateway."""
-from datetime import datetime
 import pytest
-import tempfile
 
 from funwithflags.definitions import User
-from funwithflags.gateways import make_postgres_gateway
 
-
-"""Test variables."""
-DATABASE_CONFIG = """[postgresql]
-host=dbpostgres
-port=5432
-dbname=postgres
-user=service
-password=password
-"""
-CREATE_TIME = datetime.now()
-EXAMPLE_USER = User(
-    user_id=1,
-    username="test",
-    nickname="nick",
-    email="test@example.com",
-    password=bytearray(b"123456"),
-    salt=bytearray(b"123"),
-    created_at=CREATE_TIME,
-    valid=True,
-)
-
-
-@pytest.fixture
-def pg_gateway():
-    with tempfile.NamedTemporaryFile(mode="w+t", suffix=".ini") as temp_file:
-        temp_file.write(DATABASE_CONFIG)
-        temp_file.seek(0)
-        return make_postgres_gateway(temp_file.name)
+from .conftest import CREATE_TIME, EXAMPLE_USER
 
 
 def compare_users_without_created_at(user1: User, user2: User):
@@ -48,11 +18,13 @@ def compare_users_without_created_at(user1: User, user2: User):
     )
 
 
+@pytest.mark.usefixtures("pg_gateway")
 def test_make_postgres_gateway(pg_gateway):
     # Then
     assert pg_gateway is not None
 
 
+@pytest.mark.usefixtures("pg_gateway")
 @pytest.mark.parametrize("user,expected", [(EXAMPLE_USER, 1), (EXAMPLE_USER, -1)])
 def test_postgres_gateway_create_user(pg_gateway, user, expected):
     """Success for the first time. When creating user with duplicate info, query should fail and return -1.
@@ -63,6 +35,7 @@ def test_postgres_gateway_create_user(pg_gateway, user, expected):
     assert expected == user_id
 
 
+@pytest.mark.usefixtures("pg_gateway")
 @pytest.mark.parametrize(
     "user_id,expected", [(-1, User()), (0, User()), (1, EXAMPLE_USER)]
 )
@@ -73,6 +46,7 @@ def test_postgres_gateway_read_user(pg_gateway, user_id, expected):
     assert compare_users_without_created_at(expected, user)
 
 
+@pytest.mark.usefixtures("pg_gateway")
 @pytest.mark.parametrize(
     "user_id,kwargs,expected",
     [
@@ -108,6 +82,7 @@ def test_postgres_gateway_update_user(pg_gateway, user_id, kwargs, expected):
     assert expected == (update_result, user)
 
 
+@pytest.mark.usefixtures("pg_gateway")
 @pytest.mark.parametrize(
     "user_id,expected", [(-1, False), (0, False), (1, True), (2, False)]
 )

@@ -23,4 +23,4 @@ COPY integration_tests/. ./integration_tests
 ENV PORT=8080
 
 # Command to startup the container
-CMD ["pytest", "tests", "integration_tests"]
+CMD ["python", "-m", "pytest", "tests", "integration_tests"]
