@@ -3,19 +3,21 @@ version: '3'
 services:
         dbpostgres:
                 build:
-                        context: ../db/test
+                        context: db/test
                 ports:
                         - "5432:5432"
                 environment:
                         POSTGRES_USER: service
                         POSTGRES_PASSWORD: password
                         POSTGRES_DB: postgres
-        dbclient-test:
+        apiservice:
                 build:
-                        context: ..
-                        dockerfile: ./Dockerfile-test
+                        context: .
+                        dockerfile: ./Dockerfile-dev
+                ports:
+                        - "8080:8080"
                 environment:
                         PORT: 8080
                 links:
                         - dbpostgres
-                restart: "no"
+                restart: always

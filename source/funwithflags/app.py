@@ -1,6 +1,4 @@
 """Main entrypoint of RESTful API service."""
-import json
-
 from flask import Flask, jsonify
 
 from funwithflags.gateways import make_context
@@ -32,5 +30,9 @@ def api_signup(request):
         return json_response(200, "OK", f"user_id={user_id}")
 
 
+def main():
+    app.run(host='0.0.0.0', port=8080)
+
+
 if __name__ == '__main__':
-    app.run()
+    main()
