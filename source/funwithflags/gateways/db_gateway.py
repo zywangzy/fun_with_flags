@@ -6,7 +6,7 @@ from typing import Any
 import psycopg2
 
 from .db_gateway_abc import DbGateway
-from funwithflags.definitions import User, DatabaseQueryError
+from funwithflags.definitions import DatabaseQueryError, User
 from funwithflags.entities import generate_update_params, read_postgres_config
 
 
@@ -76,7 +76,7 @@ class PostgresGateway(DbGateway):
             return result
         except (Exception, psycopg2.DatabaseError) as e:
             logger.error(f"PostgresGateway failed on query: '{query}' with {args}.")
-            raise DatabaseQueryError
+            raise DatabaseQueryError(message=f"Query {query} with {args} failed: {e}")
 
     def create_user(self, user: User) -> int:
         """Given a `user` object, create user entry in database table and return
@@ -101,7 +101,8 @@ class PostgresGateway(DbGateway):
         """
         if user_id <= 0:
             return User(valid=False)
-        query = """SELECT (username, nickname, email, password, salt, created_at) FROM users WHERE user_id = %s"""
+        query = """SELECT user_id, username, nickname, password, salt, email, created_at
+                   FROM users WHERE user_id = %s"""
         result = self.query(query, user_id)
         return User(
             user_id=result[0],
@@ -112,7 +113,7 @@ class PostgresGateway(DbGateway):
             email=result[5],
             created_at=result[6],
             valid=True,
-        )
+        ) if result is not None else User()
 
     def update_user(self, user_id: int, **kwargs) -> bool:
         """Given a `user_id` integer and keyword only arguments, update fields

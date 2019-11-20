@@ -2,6 +2,7 @@
 import pytest
 
 from funwithflags.definitions import User
+from funwithflags.definitions import DatabaseQueryError
 
 from .conftest import CREATE_TIME, EXAMPLE_USER
 
@@ -25,14 +26,27 @@ def test_make_postgres_gateway(pg_gateway):
 
 
 @pytest.mark.usefixtures("pg_gateway")
-@pytest.mark.parametrize("user,expected", [(EXAMPLE_USER, 1), (EXAMPLE_USER, -1)])
-def test_postgres_gateway_create_user(pg_gateway, user, expected):
-    """Success for the first time. When creating user with duplicate info, query should fail and return -1.
+def test_postgres_gateway_create_user_success(pg_gateway):
+    """Success for the first time.
     """
+    # Given
+    user = EXAMPLE_USER
+    expected_user_id = 1
     # When
     user_id = pg_gateway.create_user(user)
     # Then
-    assert expected == user_id
+    assert expected_user_id == user_id
+
+
+@pytest.mark.usefixtures("pg_gateway")
+def test_postgres_gateway_create_user_failure(pg_gateway):
+    """When creating user with duplicate info, query should fail and raise exception.
+    """
+    # Given
+    user = EXAMPLE_USER
+    # When & Then
+    with pytest.raises(DatabaseQueryError):
+        pg_gateway.create_user(user)
 
 
 @pytest.mark.usefixtures("pg_gateway")
