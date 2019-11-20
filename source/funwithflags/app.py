@@ -1,19 +1,25 @@
 """Main entrypoint of RESTful API service."""
-from flask import Flask, jsonify
+from http import HTTPStatus as status
+import logging
 
+from flask import Flask
+from flask import jsonify, request, make_response
+
+from funwithflags.definitions import SignupRequest
+from funwithflags.definitions import DatabaseQueryError
 from funwithflags.gateways import make_context
 from funwithflags.use_cases import signup
 
-
+logger = logging.getLogger(__name__)
 context = make_context()
 app = Flask(__name__)
 
 
-def json_response(code, message, data):
+def app_response(code, message, **data):
     """Helper function of Flask to return json response. Will return a json object with structure of
     {"code": code, "msg": message, "data": data}, e.g. {"code": 200, "msg": "OK", "data": 1}.
     """
-    return jsonify(code=code, msg=message, data=data)
+    return make_response(jsonify(message=message, **data), code)
 
 
 @app.route('/')
@@ -22,12 +28,21 @@ def hello_world():
 
 
 @app.route('/signup')
-def api_signup(request):
-    user_id = signup(request, context)
-    if user_id == -1:
-        return json_response(500, "Signup failed", "Internal error")
-    else:
-        return json_response(200, "OK", f"user_id={user_id}")
+def api_signup():
+    try:
+        content = request.get_json(force=True)
+        signup_request = SignupRequest(username=content["username"],
+                                       nickname=content["nickname"],
+                                       email=content["email"],
+                                       password=content["password"])
+        user_id = signup(signup_request, context)
+        return app_response(status.CREATED, message="OK", user_id=user_id)
+    except KeyError:
+        return app_response(status.BAD_REQUEST, message="Invalid request")
+    except DatabaseQueryError:
+        return app_response(status.CONFLICT, message="Conflict user")
+    except Exception:
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 def main():

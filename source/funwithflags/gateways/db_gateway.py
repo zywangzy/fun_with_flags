@@ -1,6 +1,4 @@
 """Module for the Postgres database gateway."""
-from configparser import ConfigParser
-from datetime import datetime
 import logging
 from time import sleep
 from typing import Any
@@ -8,7 +6,7 @@ from typing import Any
 import psycopg2
 
 from .db_gateway_abc import DbGateway
-from funwithflags.definitions import User
+from funwithflags.definitions import User, DatabaseQueryError
 from funwithflags.entities import generate_update_params, read_postgres_config
 
 
@@ -78,7 +76,7 @@ class PostgresGateway(DbGateway):
             return result
         except (Exception, psycopg2.DatabaseError) as e:
             logger.error(f"PostgresGateway failed on query: '{query}' with {args}.")
-            return None
+            raise DatabaseQueryError
 
     def create_user(self, user: User) -> int:
         """Given a `user` object, create user entry in database table and return
@@ -103,10 +101,8 @@ class PostgresGateway(DbGateway):
         """
         if user_id <= 0:
             return User(valid=False)
-        query = """SELECT * FROM users WHERE user_id = %s"""
+        query = """SELECT (username, nickname, email, password, salt, created_at) FROM users WHERE user_id = %s"""
         result = self.query(query, user_id)
-        if result is None:
-            return User(valid=False)
         return User(
             user_id=result[0],
             username=result[1],
