@@ -6,11 +6,12 @@ from .db_gateway import make_postgres_gateway, PostgresGateway
 
 @dataclass
 class Context:
+    """The context class consists all the gateways and states necessary for service.
+    """
+
     postgres_gateway: PostgresGateway
 
-
-def make_context(postgres_gateway=None) -> Context:
-    """Factory method to build Context object consisting PostgresGateway."""
-    if postgres_gateway is None:
-        postgres_gateway = make_postgres_gateway()
-    return Context(postgres_gateway)
+    def __init__(self, postgres_gateway=None):
+        self.postgres_gateway = (
+            make_postgres_gateway() if postgres_gateway is None else postgres_gateway
+        )

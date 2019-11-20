@@ -19,5 +19,4 @@ def test_signup(context):
     result = signup(request, context)
     # Then
     assert isinstance(result, int)
-    assert result != -1
     assert result > 0

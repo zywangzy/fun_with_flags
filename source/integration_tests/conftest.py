@@ -3,7 +3,7 @@ import pytest
 import tempfile
 
 from funwithflags.definitions import User
-from funwithflags.gateways import make_postgres_gateway, make_context
+from funwithflags.gateways import Context, make_postgres_gateway
 
 
 """Test variables."""
@@ -20,8 +20,8 @@ EXAMPLE_USER = User(
     username="test",
     nickname="nick",
     email="test@example.com",
-    password=bytearray(b"123456"),
-    salt=bytearray(b"123"),
+    password=b"123456",
+    salt=b"123",
     created_at=CREATE_TIME,
     valid=True,
 )
@@ -38,4 +38,4 @@ def pg_gateway():
 @pytest.fixture
 @pytest.mark.usefixtures("pg_gateway")
 def context(pg_gateway):
-    return make_context(pg_gateway)
+    return Context(postgres_gateway=pg_gateway)

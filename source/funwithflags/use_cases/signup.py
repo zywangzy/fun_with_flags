@@ -1,6 +1,6 @@
 """Module for user signup implementation."""
 from funwithflags.definitions import SignupRequest, User
-from funwithflags.entities import generate_salt, hash_password
+from funwithflags.entities import hash_password_and_salt
 from funwithflags.gateways import Context
 
 
@@ -9,8 +9,7 @@ def signup(request: SignupRequest, context: Context):
     This will create a valid `User` object and write it into Postgres database table.
     Return user id got from db gateway.
     """
-    salt: bytearray = generate_salt()
-    hashed_password: bytearray = hash_password(request.password, salt)
+    hashed_password, salt = hash_password_and_salt(request.password)
     user = User(
         username=request.username,
         nickname=request.nickname,

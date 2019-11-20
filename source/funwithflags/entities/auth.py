@@ -2,11 +2,7 @@
 import bcrypt
 
 
-def generate_salt() -> bytearray:
-    """Generate a random salt and convert it from type 'bytes' to 'bytearray'."""
-    return bytearray(bcrypt.gensalt())
-
-
-def hash_password(password: str, salt: bytearray) -> bytearray:
-    """Hash a password string with salt, return a 'bytearray' hashed password."""
-    return bcrypt.hashpw(bytes(password.encode()), bytes(salt))
+def hash_password_and_salt(password: str) -> (bytes, bytes):
+    """Hash a password string with generated salt, return a 'bytes' hashed password and the 'bytes' salt."""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(bytes(password.encode()), salt), salt

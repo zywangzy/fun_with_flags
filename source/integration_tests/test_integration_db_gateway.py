@@ -67,11 +67,7 @@ def test_postgres_gateway_read_user(pg_gateway, user_id, expected):
         (0, {}, (False, User())),
         (
             1,
-            {
-                "username": "newtest",
-                "password": bytearray(b"654321"),
-                "salt": bytearray(b"321"),
-            },
+            {"username": "newtest", "password": b"654321", "salt": b"321",},
             (
                 True,
                 User(
@@ -79,8 +75,8 @@ def test_postgres_gateway_read_user(pg_gateway, user_id, expected):
                     username="newtest",
                     nickname="nick",
                     email="test@example.com",
-                    password=bytearray(b"654321"),
-                    salt=bytearray(b"123"),
+                    password=b"654321",
+                    salt=b"123",
                     created_at=CREATE_TIME,
                     valid=True,
                 ),

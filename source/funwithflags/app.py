@@ -7,11 +7,11 @@ from flask import jsonify, request, make_response
 
 from funwithflags.definitions import SignupRequest
 from funwithflags.definitions import DatabaseQueryError
-from funwithflags.gateways import make_context
+from funwithflags.gateways import Context
 from funwithflags.use_cases import signup
 
 logger = logging.getLogger(__name__)
-context = make_context()
+context = Context()
 app = Flask(__name__)
 
 
@@ -27,7 +27,7 @@ def hello_world():
     return "Hello, World!"
 
 
-@app.route("/signup")
+@app.route("/signup", methods=["GET"])
 def api_signup():
     try:
         content = request.get_json(force=True)
