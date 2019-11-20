@@ -1,8 +1,5 @@
 """Module for user signup implementation."""
-from funwithflags.definitions import (
-    SignupRequest,
-    User
-)
+from funwithflags.definitions import SignupRequest, User
 from funwithflags.entities import generate_salt, hash_password
 from funwithflags.gateways import Context
 
@@ -20,7 +17,7 @@ def signup(request: SignupRequest, context: Context):
         email=request.email,
         password=hashed_password,
         salt=salt,
-        valid=True
+        valid=True,
     )
     user_id = context.postgres_gateway.create_user(user)
     return user_id

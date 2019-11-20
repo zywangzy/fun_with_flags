@@ -9,6 +9,5 @@ class ApplicationError(Exception):
 @dataclass
 class DatabaseQueryError(ApplicationError):
     """Exception of database query error."""
+
     message: str
-
-

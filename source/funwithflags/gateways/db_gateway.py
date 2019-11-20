@@ -104,16 +104,20 @@ class PostgresGateway(DbGateway):
         query = """SELECT user_id, username, nickname, password, salt, email, created_at
                    FROM users WHERE user_id = %s"""
         result = self.query(query, user_id)
-        return User(
-            user_id=result[0],
-            username=result[1],
-            nickname=result[2],
-            password=bytearray(result[3]),
-            salt=bytearray(result[4]),
-            email=result[5],
-            created_at=result[6],
-            valid=True,
-        ) if result is not None else User()
+        return (
+            User(
+                user_id=result[0],
+                username=result[1],
+                nickname=result[2],
+                password=bytearray(result[3]),
+                salt=bytearray(result[4]),
+                email=result[5],
+                created_at=result[6],
+                valid=True,
+            )
+            if result is not None
+            else User()
+        )
 
     def update_user(self, user_id: int, **kwargs) -> bool:
         """Given a `user_id` integer and keyword only arguments, update fields

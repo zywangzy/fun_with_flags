@@ -22,19 +22,21 @@ def app_response(code, message, **data):
     return make_response(jsonify(message=message, **data), code)
 
 
-@app.route('/')
+@app.route("/")
 def hello_world():
-    return 'Hello, World!'
+    return "Hello, World!"
 
 
-@app.route('/signup')
+@app.route("/signup")
 def api_signup():
     try:
         content = request.get_json(force=True)
-        signup_request = SignupRequest(username=content["username"],
-                                       nickname=content["nickname"],
-                                       email=content["email"],
-                                       password=content["password"])
+        signup_request = SignupRequest(
+            username=content["username"],
+            nickname=content["nickname"],
+            email=content["email"],
+            password=content["password"],
+        )
         user_id = signup(signup_request, context)
         return app_response(status.CREATED, message="OK", user_id=user_id)
     except KeyError:
@@ -46,8 +48,8 @@ def api_signup():
 
 
 def main():
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host="0.0.0.0", port=8080)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
