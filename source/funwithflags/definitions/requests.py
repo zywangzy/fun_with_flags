@@ -5,7 +5,9 @@ import re
 from .exceptions import BadRequestError
 
 
-password_reg = r"""^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$"""
+password_reg = (
+    r"""^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$"""
+)
 email_reg = r"""^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"""
 
 password_pat = re.compile(password_reg)
@@ -32,5 +34,9 @@ class SignupRequest:
     password: str
 
     def __post_init__(self):
-        if len(self.username) < 3 or not validate_email(self.email) or not validate_password(self.password):
+        if (
+            len(self.username) < 3
+            or not validate_email(self.email)
+            or not validate_password(self.password)
+        ):
             raise BadRequestError("Invalid username, email or password")
