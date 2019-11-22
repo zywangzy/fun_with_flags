@@ -6,7 +6,7 @@ from flask import Flask
 from flask import jsonify, request, make_response
 
 from funwithflags.definitions import SignupRequest
-from funwithflags.definitions import DatabaseQueryError
+from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.gateways import Context
 from funwithflags.use_cases import signup
 
@@ -39,11 +39,14 @@ def api_signup():
         )
         user_id = signup(signup_request, context)
         return app_response(status.CREATED, message="OK", user_id=user_id)
-    except KeyError:
+    except (KeyError, BadRequestError):
         return app_response(status.BAD_REQUEST, message="Invalid request")
     except DatabaseQueryError:
         return app_response(status.CONFLICT, message="Conflict user")
-    except Exception:
+    except Exception as e:
+        logger.info(
+            f'An exception happened when handling signup request "{content}": {e}'
+        )
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
