@@ -12,7 +12,7 @@ class User:
     username: str = ""
     nickname: str = ""
     email: str = ""
-    password: bytearray = b""
-    salt: bytearray = b""
+    password: bytes = b""
+    salt: bytes = b""
     created_at: datetime = datetime.now()
     valid: bool = False
