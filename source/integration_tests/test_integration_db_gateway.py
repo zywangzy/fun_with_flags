@@ -67,7 +67,7 @@ def test_postgres_gateway_read_user(pg_gateway, user_id, expected):
         (0, {}, (False, User())),
         (
             1,
-            {"username": "newtest", "password": b"654321", "salt": b"321",},
+            {"username": "newtest", "password": b"654321", "salt": b"321"},
             (
                 True,
                 User(
