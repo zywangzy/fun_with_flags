@@ -4,6 +4,7 @@ import logging
 
 from flask import Flask
 from flask import jsonify, request, make_response
+from flasgger import swag_from, Swagger
 
 from funwithflags.definitions import SignupRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
@@ -13,6 +14,7 @@ from funwithflags.use_cases import signup
 logger = logging.getLogger(__name__)
 context = Context()
 app = Flask(__name__)
+swagger = Swagger(app)
 
 
 def app_response(code, message, **data):
@@ -28,6 +30,7 @@ def hello_world():
 
 
 @app.route("/signup", methods=["GET"])
+@swag_from("swag_docs/signup.yml")
 def api_signup():
     try:
         content = request.get_json(force=True)
