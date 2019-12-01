@@ -17,7 +17,7 @@ requestBody:
           password:
             type: string
 responses:
-  '200':
+  '201':
     description: OK. Successful user registeration.
     content:
       application/json:

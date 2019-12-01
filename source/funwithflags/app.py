@@ -6,10 +6,10 @@ from flask import Flask
 from flask import jsonify, request, make_response
 from flasgger import swag_from, Swagger
 
-from funwithflags.definitions import SignupRequest
+from funwithflags.definitions import RegisterRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.gateways import Context
-from funwithflags.use_cases import signup
+from funwithflags.use_cases import register
 
 logger = logging.getLogger(__name__)
 context = Context()
@@ -34,18 +34,18 @@ def hello_world():
     return "Hello, World!"
 
 
-@app.route("/signup", methods=["GET"])
-@swag_from("swag_docs/signup.yml")
-def api_signup():
+@app.route("/user/register", methods=["POST"])
+@swag_from("swag_docs/user_register.yml")
+def api_register():
     try:
         content = request.get_json(force=True)
-        signup_request = SignupRequest(
+        register_request = RegisterRequest(
             username=content["username"],
             nickname=content["nickname"],
             email=content["email"],
             password=content["password"],
         )
-        user_id = signup(signup_request, context)
+        user_id = register(register_request, context)
         return app_response(status.CREATED, message="OK", user_id=user_id)
     except (KeyError, BadRequestError):
         return app_response(status.BAD_REQUEST, message="Invalid request")

@@ -3,7 +3,7 @@ import pytest
 
 from funwithflags.definitions import (
     BadRequestError,
-    SignupRequest,
+    RegisterRequest,
     validate_email,
     validate_password,
 )
@@ -71,6 +71,6 @@ def test_validate_email(email, expected):
 def test_signup_request_failure(kwargs):
     with pytest.raises(BadRequestError) as exc:
         # When
-        _ = SignupRequest(**kwargs)
+        _ = RegisterRequest(**kwargs)
     # Then
     assert "Invalid username, email or password" in str(exc)
