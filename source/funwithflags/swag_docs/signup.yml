@@ -1,26 +1,51 @@
 Signup API returning either success response or failure response.
 ---
-parameters:
-  - name: palette
-    in: path
-    type: string
-    enum: ['all', 'rgb', 'cmyk']
-    required: true
-    default: all
-definitions:
-  Palette:
-    type: object
-    properties:
-      palette_name:
-        type: array
-        items:
-          $ref: '#/definitions/Color'
-  Color:
-    type: string
+requestBody:
+  description: Register a user.
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          username:
+            type: string
+          nickname:
+            type: string
+          email:
+            type: string
+          password:
+            type: string
 responses:
-  200:
-    description: A list of colors (may be filtered by palette)
-    schema:
-      $ref: '#/definitions/Palette'
-    examples:
-      rgb: ['red', 'green', 'blue']
+  '200':
+    description: OK. Successful user registeration.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: 'OK'
+            user_id:
+              type: integer
+              format: int64
+              example: 213
+  '400':
+    description: Bad request.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+  '409':
+    description: Conflict user.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string

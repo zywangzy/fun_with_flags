@@ -14,6 +14,11 @@ from funwithflags.use_cases import signup
 logger = logging.getLogger(__name__)
 context = Context()
 app = Flask(__name__)
+app.config['SWAGGER'] = {
+    'title': 'Funwithflags API',
+    'openapi': '3.0.2',
+    'uiversion': 3
+}
 swagger = Swagger(app)
 
 
