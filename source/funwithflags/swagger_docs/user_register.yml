@@ -1,5 +1,12 @@
-Signup API returning either success response or failure response.
+Register API. Given info needed for user creation, creates user and returns either user ID or error message.
 ---
+components:
+  schemas:
+    error:
+      type: object
+      properties:
+        message:
+          type: string
 requestBody:
   description: Register a user.
   required: true
@@ -10,12 +17,16 @@ requestBody:
         properties:
           username:
             type: string
+            example: 'username'
           nickname:
             type: string
+            example: 'nickname'
           email:
             type: string
+            example: 'username@example.com'
           password:
             type: string
+            example: 'abc123ABC@'
 responses:
   '201':
     description: OK. Successful user registeration.
@@ -40,6 +51,7 @@ responses:
           properties:
             message:
               type: string
+              example: 'Invalid request'
   '409':
     description: Conflict user.
     content:
@@ -49,3 +61,4 @@ responses:
           properties:
             message:
               type: string
+              example: 'User existing'

@@ -7,13 +7,13 @@ from funwithflags.use_cases import register
 
 
 @pytest.mark.usefixtures("context")
-def test_signup(context):
+def test_register(context):
     # Given
     request = RegisterRequest(
         username="testuser",
         nickname="usr123",
         email="test@test.com",
-        password="password",
+        password="Password123@",
     )
     # When
     result = register(request, context)

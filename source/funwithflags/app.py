@@ -35,7 +35,7 @@ def hello_world():
 
 
 @app.route("/user/register", methods=["POST"])
-@swag_from("swag_docs/user_register.yml")
+@swag_from("swagger_docs/user_register.yml")
 def api_register():
     try:
         content = request.get_json(force=True)
@@ -56,6 +56,12 @@ def api_register():
             f'An exception happened when handling signup request "{content}": {e}'
         )
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
+
+
+@app.route("/user/login", methods=["POST"])
+@swag_from("swagger_docs/user_login.yml")
+def api_login():
+    return app_response(status.FORBIDDEN, message="Unimplemented function")
 
 
 def main():
