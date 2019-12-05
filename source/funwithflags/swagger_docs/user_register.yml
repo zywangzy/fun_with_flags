@@ -1,12 +1,5 @@
 Register API. Given info needed for user creation, creates user and returns either user ID or error message.
 ---
-components:
-  schemas:
-    error:
-      type: object
-      properties:
-        message:
-          type: string
 requestBody:
   description: Register a user.
   required: true

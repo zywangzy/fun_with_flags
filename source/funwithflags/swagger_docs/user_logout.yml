@@ -1,7 +1,7 @@
-Login API. Given username and password, returns successful jwt or error message.
+User logout API. Given username and jwt, deactivate the jwt and return OK or error message.
 ---
 requestBody:
-    description: Login a user, take in username and password and return jwt.
+    description: Logout a user.
     required: true
     content:
         application/json:
@@ -10,13 +10,13 @@ requestBody:
                 properties:
                     username:
                         type: string
-                        example: 'username'
-                    password:
+                        example: 'randomuser'
+                    jwt:
                         type: string
-                        example: 'abcDEF@123'
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
 responses:
     '200':
-        description: OK. Successfully logged in, returning jwt for authentication.
+        description: OK. Successfully logged out.
         content:
             application/json:
                 schema:
@@ -24,12 +24,9 @@ responses:
                     properties:
                         username:
                             type: string
-                            example: 'username'
-                        jwt:
-                            type: string
-                            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+                            example: 'randomuser'
     '400':
-        description: Bad request.
+        description: Bad (malformed) request.
         content:
             application/json:
                 schema:
@@ -37,7 +34,17 @@ responses:
                     properties:
                         message:
                             type: string
-                            example: 'Invalid or malformed request'
+                            example: 'Invalid or malformed request.'
+    '401':
+        description: Invalid username or jwt.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid username or outdated jwt'
     '500':
         description: Internal error.
         content:

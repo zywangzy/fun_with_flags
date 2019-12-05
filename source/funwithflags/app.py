@@ -61,7 +61,13 @@ def api_register():
 @app.route("/user/login", methods=["POST"])
 @swag_from("swagger_docs/user_login.yml")
 def api_login():
-    return app_response(status.FORBIDDEN, message="Unimplemented function")
+    return app_response(status.FORBIDDEN, message="Unsupported function")
+
+
+@app.route("/user/logout", methods=["POST"])
+@swag_from("swagger_docs/user_logout.yml")
+def api_logout():
+    return app_response(status.FORBIDDEN, message="Unsupported function")
 
 
 def main():
