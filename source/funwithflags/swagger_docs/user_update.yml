@@ -1,7 +1,7 @@
-User logout API. Given username and jwt, deactivate the jwt and return OK or error message.
+Update user information. Given userid, jwt and fields to update, update user information and return OK or error message.
 ---
 requestBody:
-    description: Logout a user.
+    description: Update user information. Userid and jwt are mandatory fields, all other fields can be left blank to be ignored. But at least one of these fields need to be valid to make the request valid.
     required: true
     content:
         application/json:
@@ -10,23 +10,38 @@ requestBody:
                 properties:
                     userid:
                         type: int
-                        example: 234
+                        example: 123
                     jwt:
                         type: string
                         example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+                    username:
+                        type: string
+                        example: ''
+                    nickname:
+                        type: string
+                        example: ''
+                    email:
+                        type: string
+                        example: ''
+                    password:
+                        type: string
+                        example: ''
 responses:
     '200':
-        description: OK. Successfully logged out.
+        description: OK. Successfully updated information.
         content:
             application/json:
                 schema:
                     type: object
                     properties:
+                        userid:
+                            type: int
+                            example: 123
                         username:
                             type: string
-                            example: 'randomuser'
+                            example: 'admin'
     '400':
-        description: Bad (malformed) request.
+        description: Bad (malformed) request. Will be returned if any of required fields are missing, or field values are invalid.
         content:
             application/json:
                 schema:
