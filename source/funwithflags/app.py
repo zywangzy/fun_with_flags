@@ -22,6 +22,9 @@ app.config['SWAGGER'] = {
 swagger = Swagger(app)
 
 
+UNSUPPORTED = "Unsupported function"
+
+
 def app_response(code, message, **data):
     """Helper function of Flask to return json response. Will return a json object with structure of
     {"code": code, "msg": message, "data": data}, e.g. {"code": 200, "msg": "OK", "data": 1}.
@@ -34,9 +37,15 @@ def hello_world():
     return "Hello, World!"
 
 
+@app.route("/user", methods=["GET"])
+@swag_from("swagger_docs/user_read.yml")
+def user_read(user_id):
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
 @app.route("/user/register", methods=["POST"])
 @swag_from("swagger_docs/user_register.yml")
-def api_register():
+def user_register():
     try:
         content = request.get_json(force=True)
         register_request = RegisterRequest(
@@ -60,14 +69,20 @@ def api_register():
 
 @app.route("/user/login", methods=["POST"])
 @swag_from("swagger_docs/user_login.yml")
-def api_login():
-    return app_response(status.FORBIDDEN, message="Unsupported function")
+def user_login():
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
 @app.route("/user/logout", methods=["POST"])
 @swag_from("swagger_docs/user_logout.yml")
-def api_logout():
-    return app_response(status.FORBIDDEN, message="Unsupported function")
+def user_logout():
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
+@app.route("/user/update", methods=["POST"])
+@swag_from("swagger_docs/user_update.yml")
+def user_update():
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
 def main():

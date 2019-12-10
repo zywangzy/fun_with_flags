@@ -1,0 +1,84 @@
+Read information of a user. Returns information about the user or an error message.
+---
+description: Given userid or username, read information of the user with specified userid or username. Only one of userid or username should be provided.
+parameters:
+    - in: query
+      name: userid
+      description: pass an optional userid for looking up the user
+      required: false
+      schema:
+          type: int
+          example: 345
+    - in: query
+      name: username
+      description: pass an optional username for looking up the user
+      required: false
+      schema:
+          type: string
+          example: 'someUser'
+requestBody:
+    description: Need authentication (userid and jwt) to get user information.
+    required: true
+    content:
+        application/json:
+            schema:
+                type: object
+                properties:
+                    userid:
+                        type: int
+                        example: 234
+                    jwt:
+                        type: string
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+responses:
+    '200':
+        description: OK. Successfully read user information.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        userid:
+                            type: int
+                            example: 345
+                        username:
+                            type: string
+                            example: 'randomuser'
+                        nickname:
+                            type: string
+                            example: 'Random Nickname'
+                        email:
+                            type: string
+                            example: 'user@example.com'
+    '400':
+        description: Bad (invalid / malformed) request.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid or malformed request'
+    '401':
+        description: Unauthorized to request information.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Unauthorized to request information'
+    '500':
+        description: Internal error.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Internal error'
+
+
