@@ -1,5 +1,8 @@
 Register API. Given info needed for user creation, creates user and returns either user ID or error message.
 ---
+description: Given username, nickname, email and password, register the user and return userid if registered successfully.
+tags:
+    - user
 requestBody:
   description: Register a user.
   required: true

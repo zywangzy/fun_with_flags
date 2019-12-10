@@ -1,5 +1,8 @@
 Login API. Given username and password, returns successful jwt or error message.
 ---
+description: Given username and password, login the user and return username and jwt if login succeeds, or error message if fails.
+tags:
+    - user
 requestBody:
     description: Login a user, take in username and password and return jwt.
     required: true

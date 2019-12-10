@@ -1,6 +1,8 @@
 Read information of a user. Returns information about the user or an error message.
 ---
 description: Given userid or username, read information of the user with specified userid or username. Only one of userid or username should be provided.
+tags:
+    - user
 parameters:
     - in: query
       name: userid

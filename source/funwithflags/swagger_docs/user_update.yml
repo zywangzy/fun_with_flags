@@ -1,5 +1,8 @@
 Update user information. Given userid, jwt and fields to update, update user information and return OK or error message.
 ---
+description: Given userid, jwt and fields to update, update user information and return OK or error message.
+tags:
+    - user
 requestBody:
     description: Update user information. Userid and jwt are mandatory fields, all other fields can be left blank to be ignored. But at least one of these fields need to be valid to make the request valid.
     required: true
