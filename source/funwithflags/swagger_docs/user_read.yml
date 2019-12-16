@@ -3,6 +3,8 @@ Read information of a user. Returns information about the user or an error messa
 description: Given userid or username, read information of the user with specified userid or username. Only one of userid or username should be provided.
 tags:
     - user
+security:
+    - Bearer: []
 parameters:
     - in: query
       name: userid
@@ -18,20 +20,6 @@ parameters:
       schema:
           type: string
           example: 'someUser'
-requestBody:
-    description: Need authentication (userid and jwt) to get user information.
-    required: true
-    content:
-        application/json:
-            schema:
-                type: object
-                properties:
-                    userid:
-                        type: int
-                        example: 234
-                    jwt:
-                        type: string
-                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
 responses:
     '200':
         description: OK. Successfully read user information.

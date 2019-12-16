@@ -17,7 +17,17 @@ app = Flask(__name__)
 app.config['SWAGGER'] = {
     'title': 'Funwithflags API',
     'openapi': '3.0.2',
-    'uiversion': 3
+    'uiversion': 3,
+    'schemes': [
+        "https"
+    ],
+    'securitySchemes': {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
 }
 swagger = Swagger(app)
 

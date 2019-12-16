@@ -1,22 +1,18 @@
-User logout API. Given username and jwt, deactivate the jwt and return OK or error message.
+User logout API. Given username, logout the user and deactivate jwt, return OK or error message.
 ---
-description: Given userid and jwt, logout user and return userid if logout successfully, or error message if fails.
+description: Given userid, logout the user and return userid if logout successfully, or error message if fails.
 tags:
     - user
-requestBody:
-    description: Logout a user.
-    required: true
-    content:
-        application/json:
-            schema:
-                type: object
-                properties:
-                    userid:
-                        type: int
-                        example: 234
-                    jwt:
-                        type: string
-                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+security:
+    - Bearer: []
+parameters:
+    - in: query
+      name: userid
+      description: pass an optional userid for looking up the user
+      required: true
+      schema:
+          type: int
+          example: 234
 responses:
     '200':
         description: OK. Successfully logged out.
