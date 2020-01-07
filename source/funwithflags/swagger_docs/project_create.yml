@@ -1,0 +1,98 @@
+Create a project.
+---
+description: Given project information, create a project and return project id if creation succeeds or error message if fails.
+tags:
+    - project
+security:
+    - Bearer: []
+requestBody:
+    description: Project name, note, type, public, user id, team id, admin id.
+    required: true
+    content:
+        application/json:
+            schema:
+                type: object
+                properties:
+                    project_name:
+                        type: string
+                        example: 'Example project'
+                    project_note:
+                        type: string
+                        example: 'Example project note'
+                    project_type:
+                        type: int
+                        example: 1
+                    public:
+                        type: boolean
+                        example: true
+                    user_id:
+                        type: int
+                        example: 1
+                    team_id:
+                        type: int
+                        example: 1
+                    admin_id:
+                        type: int
+                        example: 1
+responses:
+    '200':
+        description: OK. Successfully created project.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        project_id:
+                            type: int
+                            example: 123
+                        project_name:
+                            type: string
+                            example: 'Example project'
+                        project_note:
+                            type: string
+                            example: 'Example project note'
+                        project_type:
+                            type: string
+                            example: 'personal'
+                        public:
+                            type: boolean
+                            example: true
+                        user_id:
+                            type: int
+                            example: 1
+                        team_id:
+                            type: int
+                            example: 1
+                        admin_id:
+                            type: int
+                            example: 1
+    '400':
+        description: Bad (malformed) request. Will be returned if any of required fields are missing, or field values are invalid.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid or malformed request.'
+    '401':
+        description: Invalid userid or jwt.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid userid or invalid jwt'
+    '500':
+        description: Internal error.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Internal error'
