@@ -47,7 +47,7 @@ def hello_world():
     return "Hello, World!"
 
 
-@app.route("/user", methods=["GET"])
+@app.route("/user/<user_id>", methods=["GET"])
 @swag_from("swagger_docs/user_read.yml")
 def user_read(user_id):
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
@@ -92,6 +92,18 @@ def user_logout():
 @app.route("/user/update", methods=["POST"])
 @swag_from("swagger_docs/user_update.yml")
 def user_update():
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
+@app.route("/project/<project_id>", methods=["GET"])
+@swag_from("swagger_docs/project_read.yml")
+def project_read(project_id):
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
+@app.route("/project/create", methods=["POST"])
+@swag_from("swagger_docs/project_create.yml")
+def project_create():
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
