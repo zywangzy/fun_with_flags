@@ -1,0 +1,53 @@
+Login API. Given username and password, returns successful jwt or error message.
+---
+description: Given username and password, login the user and return username and jwt if login succeeds, or error message if fails.
+tags:
+    - user
+requestBody:
+    description: Login a user, take in username and password and return jwt.
+    required: true
+    content:
+        application/json:
+            schema:
+                type: object
+                properties:
+                    username:
+                        type: string
+                        example: 'username'
+                    password:
+                        type: string
+                        example: 'abcDEF@123'
+responses:
+    '200':
+        description: OK. Successfully logged in, returning jwt for authentication.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        username:
+                            type: string
+                            example: 'username'
+                        jwt:
+                            type: string
+                            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+    '400':
+        description: Bad request.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid or malformed request'
+    '500':
+        description: Internal error.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Internal error'

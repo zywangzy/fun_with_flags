@@ -1,0 +1,56 @@
+User logout API. Given username, logout the user and deactivate jwt, return OK or error message.
+---
+description: Given userid, logout the user and return userid if logout successfully, or error message if fails.
+tags:
+    - user
+security:
+    - Bearer: []
+parameters:
+    - in: query
+      name: userid
+      description: pass an optional userid for looking up the user
+      required: true
+      schema:
+          type: int
+          example: 234
+responses:
+    '200':
+        description: OK. Successfully logged out.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        userid:
+                            type: int
+                            example: 234
+    '400':
+        description: Bad (malformed) request.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid or malformed request.'
+    '401':
+        description: Invalid userid or jwt.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid userid or invalid jwt'
+    '500':
+        description: Internal error.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Internal error'

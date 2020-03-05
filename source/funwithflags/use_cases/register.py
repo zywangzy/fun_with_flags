@@ -1,11 +1,11 @@
 """Module for user signup implementation."""
-from funwithflags.definitions import SignupRequest, User
+from funwithflags.definitions import RegisterRequest, User
 from funwithflags.entities import hash_password_and_salt
 from funwithflags.gateways import Context
 
 
-def signup(request: SignupRequest, context: Context):
-    """Given a `SignupRequest` object and `Context` of gateways, execute signup logic.
+def register(request: RegisterRequest, context: Context):
+    """Given a `RegisterRequest` object and `Context` of gateways, execute signup logic.
     This will create a valid `User` object and write it into Postgres database table.
     Return user id got from db gateway.
     """

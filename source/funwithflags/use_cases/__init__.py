@@ -1,2 +1,2 @@
 """Module for use cases."""
-from .signup import signup
+from .register import register

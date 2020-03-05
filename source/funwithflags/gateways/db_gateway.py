@@ -76,7 +76,7 @@ class PostgresGateway(DbGateway):
             return result
         except (Exception, psycopg2.DatabaseError) as e:
             logger.error(f"PostgresGateway failed on query: '{query}' with {args}.")
-            raise DatabaseQueryError(message=f"Query {query} with {args} failed: {e}")
+            raise DatabaseQueryError(f"Query {query} with {args} failed: {e}")
 
     def create_user(self, user: User) -> int:
         """Given a `user` object, create user entry in database table and return

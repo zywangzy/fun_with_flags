@@ -1,0 +1,74 @@
+Update user information. Given userid and fields to update, update user information and return OK or error message.
+---
+description: Given userid and fields to update, update user information and return OK or error message.
+tags:
+    - user
+security:
+    - Bearer: []
+requestBody:
+    description: Update user information. Userid is mandatory field, all other fields can be left blank to be ignored. But at least one of these fields need to be valid to make the request valid.
+    required: true
+    content:
+        application/json:
+            schema:
+                type: object
+                properties:
+                    userid:
+                        type: int
+                        example: 123
+                    username:
+                        type: string
+                        example: ''
+                    nickname:
+                        type: string
+                        example: ''
+                    email:
+                        type: string
+                        example: ''
+                    password:
+                        type: string
+                        example: ''
+responses:
+    '200':
+        description: OK. Successfully updated information.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        userid:
+                            type: int
+                            example: 123
+                        username:
+                            type: string
+                            example: 'admin'
+    '400':
+        description: Bad (malformed) request. Will be returned if any of required fields are missing, or field values are invalid.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid or malformed request.'
+    '401':
+        description: Invalid userid or jwt.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid userid or invalid jwt'
+    '500':
+        description: Internal error.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Internal error'

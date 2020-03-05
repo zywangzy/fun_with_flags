@@ -2,21 +2,21 @@
 import json
 import pytest
 
-from funwithflags.definitions import SignupRequest
-from funwithflags.use_cases import signup
+from funwithflags.definitions import RegisterRequest
+from funwithflags.use_cases import register
 
 
 @pytest.mark.usefixtures("context")
-def test_signup(context):
+def test_register(context):
     # Given
-    request = SignupRequest(
+    request = RegisterRequest(
         username="testuser",
         nickname="usr123",
         email="test@test.com",
-        password="password",
+        password="Password123@",
     )
     # When
-    result = signup(request, context)
+    result = register(request, context)
     # Then
     assert isinstance(result, int)
     assert result > 0

@@ -27,7 +27,7 @@ def validate_email(email: str) -> bool:
 
 
 @dataclass
-class SignupRequest:
+class RegisterRequest:
     username: str
     nickname: str
     email: str

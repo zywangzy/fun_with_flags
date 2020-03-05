@@ -1,0 +1,90 @@
+Read a project.
+---
+description: Read project information.
+tags:
+    - project
+security:
+    - Bearer: []
+parameters:
+    - in: query
+      name: project_id
+      description: a mandatory field of project id
+      required: true
+      schema:
+          type: int
+          example: 345
+responses:
+    '200':
+        description: OK. Successfully read user information.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        project_id:
+                            type: int
+                            example: 345
+                        project_name:
+                            type: string
+                            example: 'Example project name'
+                        project_note:
+                            type: string
+                            example: 'Example project note'
+                        project_type:
+                            type: int
+                            example: 1
+                        public:
+                            type: boolean
+                            example: true
+                        user_id:
+                            type: int
+                            example: 1
+                        team_id:
+                            type: int
+                            example: 1
+                        admin_id:
+                            type: int
+                            example: 1
+                        created_at:
+                            type: string
+                            format: date-time
+                            example: '2020-01-01T17:32:28Z'
+                        epics:
+                            type: array
+                            items:
+                                type: int
+                        sprints:
+                            type: array
+                            items:
+                                type: int
+    '400':
+        description: Bad (invalid / malformed) request.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid or malformed request'
+    '401':
+        description: Unauthorized to request information.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Unauthorized to request information'
+    '500':
+        description: Internal error.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Internal error'
+

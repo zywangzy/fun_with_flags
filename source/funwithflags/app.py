@@ -4,15 +4,35 @@ import logging
 
 from flask import Flask
 from flask import jsonify, request, make_response
+from flasgger import swag_from, Swagger
 
-from funwithflags.definitions import SignupRequest
+from funwithflags.definitions import RegisterRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.gateways import Context
-from funwithflags.use_cases import signup
+from funwithflags.use_cases import register
 
 logger = logging.getLogger(__name__)
 context = Context()
 app = Flask(__name__)
+app.config['SWAGGER'] = {
+    'title': 'Funwithflags API',
+    'openapi': '3.0.2',
+    'uiversion': 3,
+    'schemes': [
+        "https"
+    ],
+    'securitySchemes': {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
+swagger = Swagger(app)
+
+
+UNSUPPORTED = "Unsupported function"
 
 
 def app_response(code, message, **data):
@@ -27,17 +47,24 @@ def hello_world():
     return "Hello, World!"
 
 
-@app.route("/signup", methods=["GET"])
-def api_signup():
+@app.route("/user/<user_id>", methods=["GET"])
+@swag_from("swagger_docs/user_read.yml")
+def user_read(user_id):
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
+@app.route("/user/register", methods=["POST"])
+@swag_from("swagger_docs/user_register.yml")
+def user_register():
     try:
         content = request.get_json(force=True)
-        signup_request = SignupRequest(
+        register_request = RegisterRequest(
             username=content["username"],
             nickname=content["nickname"],
             email=content["email"],
             password=content["password"],
         )
-        user_id = signup(signup_request, context)
+        user_id = register(register_request, context)
         return app_response(status.CREATED, message="OK", user_id=user_id)
     except (KeyError, BadRequestError):
         return app_response(status.BAD_REQUEST, message="Invalid request")
@@ -48,6 +75,36 @@ def api_signup():
             f'An exception happened when handling signup request "{content}": {e}'
         )
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
+
+
+@app.route("/user/login", methods=["POST"])
+@swag_from("swagger_docs/user_login.yml")
+def user_login():
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
+@app.route("/user/logout", methods=["POST"])
+@swag_from("swagger_docs/user_logout.yml")
+def user_logout():
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
+@app.route("/user/update", methods=["POST"])
+@swag_from("swagger_docs/user_update.yml")
+def user_update():
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
+@app.route("/project/<project_id>", methods=["GET"])
+@swag_from("swagger_docs/project_read.yml")
+def project_read(project_id):
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+
+
+@app.route("/project/create", methods=["POST"])
+@swag_from("swagger_docs/project_create.yml")
+def project_create():
+    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
 def main():
