@@ -23,4 +23,4 @@ COPY main.py .
 ENV PORT=8080
 
 # Command to startup the container
-CMD ["python", "main.py"]
+CMD ["python", "-u", "main.py"]

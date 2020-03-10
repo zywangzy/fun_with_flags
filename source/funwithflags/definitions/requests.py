@@ -40,3 +40,9 @@ class RegisterRequest:
             or not validate_password(self.password)
         ):
             raise BadRequestError("Invalid username, email or password")
+
+
+@dataclass
+class LoginRequest:
+    username: str
+    password: str

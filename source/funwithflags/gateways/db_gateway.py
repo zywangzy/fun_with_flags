@@ -60,6 +60,16 @@ class PostgresGateway(DbGateway):
         self._active = False
         self._conn.close()
 
+    @staticmethod
+    def _read_user_query(user_id: int = None, username: str = None):
+        query = "SELECT user_id, username, nickname, password, salt, email, created_at FROM users WHERE "
+        if user_id is not None:
+            return query + "user_id = %s", user_id
+        elif username is not None:
+            return query + "username = %s", username
+        else:
+            return None, None
+
     def query(self, query: str, *args) -> Any:
         """Given a `query` string, do the query and return result.
         """
@@ -82,7 +92,7 @@ class PostgresGateway(DbGateway):
         """Given a `user` object, create user entry in database table and return
         an integer of `user_id` of created user. Returns -1 if creation fails.
         """
-        query = """INSERT INTO users(username, nickname, email, password, salt, created_at) 
+        query = """INSERT INTO users(username, nickname, email, password, salt, created_at)
                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING user_id"""
         user_id = self.query(
             query,
@@ -95,15 +105,14 @@ class PostgresGateway(DbGateway):
         )
         return user_id[0] if user_id is not None and len(user_id) == 1 else -1
 
-    def read_user(self, user_id: int) -> User:
+    def read_user(self, user_id: int = None, username: str = None) -> User:
         """Given a `user_id` integer, read user info from database and return a
         `User` object.
         """
-        if user_id <= 0:
+        if user_id is not None and user_id <= 0:
             return User(valid=False)
-        query = """SELECT user_id, username, nickname, password, salt, email, created_at
-                   FROM users WHERE user_id = %s"""
-        result = self.query(query, user_id)
+        query, key = PostgresGateway._read_user_query(user_id, username)
+        result = self.query(query, username) if query is not None else None
         return (
             User(
                 user_id=result[0],

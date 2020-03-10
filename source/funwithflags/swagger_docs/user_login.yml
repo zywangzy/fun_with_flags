@@ -41,6 +41,16 @@ responses:
                         message:
                             type: string
                             example: 'Invalid or malformed request'
+    '404':
+        description: Not found.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Username not found'
     '500':
         description: Internal error.
         content:
