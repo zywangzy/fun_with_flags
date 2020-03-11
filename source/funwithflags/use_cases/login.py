@@ -15,7 +15,4 @@ def login(request: LoginRequest, context: Context) -> (str, str):
     hash_val = hash_password_with_salt(request.password, user.salt)
     if hash_val != user.password:
         raise BadRequestError
-    # TODO: generate jwt
-    jwt = create_jwt(identity=user.user_id)
-    # TODO: Write jwt to Redis (need override?)
-    return request.username, jwt
+    return request.username, create_jwt(identity=user.user_id)
