@@ -63,9 +63,9 @@ class PostgresGateway(DbGateway):
     @staticmethod
     def _read_user_query(user_id: int = None, username: str = None):
         query = "SELECT user_id, username, nickname, password, salt, email, created_at FROM users WHERE "
-        if user_id is not None:
+        if user_id:
             return query + "user_id = %s", user_id
-        elif username is not None:
+        elif username:
             return query + "username = %s", username
         else:
             return None, None
@@ -103,7 +103,7 @@ class PostgresGateway(DbGateway):
             user.salt,
             user.created_at,
         )
-        return user_id[0] if user_id is not None and len(user_id) == 1 else -1
+        return user_id[0] if user_id and len(user_id) == 1 else -1
 
     def read_user(self, user_id: int = None, username: str = None) -> User:
         """Given a `user_id` integer, read user info from database and return a
@@ -112,7 +112,7 @@ class PostgresGateway(DbGateway):
         if user_id is not None and user_id <= 0:
             return User(valid=False)
         query, key = PostgresGateway._read_user_query(user_id, username)
-        result = self.query(query, username) if query is not None else None
+        result = self.query(query, username) if query else None
         return (
             User(
                 user_id=result[0],

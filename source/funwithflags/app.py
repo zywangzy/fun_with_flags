@@ -5,6 +5,7 @@ import logging
 from flask import Flask
 from flask import jsonify, request, make_response
 from flasgger import swag_from, Swagger
+from flask_jwt_simple import JWTManager
 
 from funwithflags.definitions import RegisterRequest, LoginRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
@@ -14,6 +15,7 @@ from funwithflags.use_cases import register, login
 logger = logging.getLogger(__name__)
 context = Context()
 app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = 'super-secret'  # TODO: Change this!
 app.config['SWAGGER'] = {
     'title': 'Funwithflags API',
     'openapi': '3.0.2',
@@ -29,6 +31,7 @@ app.config['SWAGGER'] = {
         }
     }
 }
+jwt = JWTManager(app)
 swagger = Swagger(app)
 
 
@@ -83,8 +86,8 @@ def user_login():
     try:
         content = request.get_json(force=True)
         login_request = LoginRequest(username=content["username"], password=content["password"])
-        username, jwt = login(login_request, context)
-        return app_response(status.OK, message="OK", username=username, jwt=jwt)
+        username, token = login(login_request, context)
+        return app_response(status.OK, message="OK", username=username, access_token=token)
     except (KeyError, BadRequestError):
         return app_response(status.BAD_REQUEST, message="Invalid request")
     except DatabaseQueryError:
