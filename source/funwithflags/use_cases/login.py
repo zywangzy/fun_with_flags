@@ -1,6 +1,6 @@
 """Module for user login implementation."""
 
-from flask_jwt_simple import create_jwt
+import flask_jwt_simple
 
 from funwithflags.definitions import LoginRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
@@ -15,4 +15,4 @@ def login(request: LoginRequest, context: Context) -> (str, str):
     hash_val = hash_password_with_salt(request.password, user.salt)
     if hash_val != user.password:
         raise BadRequestError
-    return request.username, create_jwt(identity=user.user_id)
+    return request.username, flask_jwt_simple.create_jwt(identity=user.user_id)

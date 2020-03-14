@@ -3,7 +3,7 @@ version: '3'
 services:
         dbpostgres:
                 build:
-                        context: db/test
+                        context: db/dev
                 ports:
                         - "5432:5432"
                 environment:

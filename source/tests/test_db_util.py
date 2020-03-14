@@ -5,6 +5,7 @@ from funwithflags.entities import (
     generate_update_params,
     read_postgres_config,
 )
+from funwithflags.gateways import PostgresGateway
 
 
 DATABASE_CONFIG = """[postgresql]
@@ -57,3 +58,23 @@ def test_generate_update_params(uid, kwargs, expected):
     result = generate_update_params(uid, **kwargs)
     # Then
     assert expected == result
+
+
+@pytest.mark.parametrize(
+    "user_id,username,expected",
+    [(None, None, (None, None)),
+     (
+         1, None,
+         ("SELECT user_id, username, nickname, password, salt, email, created_at FROM users WHERE user_id = %s", 1)),
+     (
+         1, "test",
+         ("SELECT user_id, username, nickname, password, salt, email, created_at FROM users WHERE user_id = %s", 1)),
+     (
+         None, "test",
+         ("SELECT user_id, username, nickname, password, salt, email, created_at FROM users WHERE username = %s",
+          "test"))
+     ]
+)
+def test_read_user_query(user_id, username, expected):
+    # When & Then
+    assert expected == PostgresGateway._read_user_query(user_id, username)

@@ -35,7 +35,7 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 Please run following command to connect to container:
 docker exec -it [container ID] bash
 ➜  test ✗ docker exec -it 98c bash
-root@98c7c88a2068:/# psql -U docker
+root@98c7c88a2068:/# psql -U service postgres
 psql (11.2 (Debian 11.2-1.pgdg90+1))
 Type "help" for help.
 

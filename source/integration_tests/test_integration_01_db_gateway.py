@@ -51,11 +51,13 @@ def test_postgres_gateway_create_user_failure(pg_gateway):
 
 @pytest.mark.usefixtures("pg_gateway")
 @pytest.mark.parametrize(
-    "user_id,expected", [(-1, User()), (0, User()), (1, EXAMPLE_USER)]
+    "user_id_name,expected",
+    [(-1, User()), (0, User()), (1, EXAMPLE_USER), (EXAMPLE_USER.username, EXAMPLE_USER), ("NotExist", User())]
 )
-def test_postgres_gateway_read_user(pg_gateway, user_id, expected):
+def test_postgres_gateway_read_user(pg_gateway, user_id_name, expected):
     # When
-    user = pg_gateway.read_user(user_id)
+    user = pg_gateway.read_user(user_id=user_id_name) if isinstance(user_id_name, int) else pg_gateway.read_user(
+        username=user_id_name)
     # Then
     assert compare_users_without_created_at(expected, user)
 

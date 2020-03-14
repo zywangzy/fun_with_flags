@@ -102,4 +102,5 @@ ENV/
 .mypy_cache/
 
 # Database testing
+db/dev/db-setup
 db/test/db-setup

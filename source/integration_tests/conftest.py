@@ -27,6 +27,19 @@ EXAMPLE_USER = User(
 )
 
 
+class TestUser:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+
+LOGIN_USER = TestUser(
+    username="testUser",
+    nickname="testAcct",
+    email="testUser@example.com",
+    password="Password123@",
+)
+
+
 @pytest.fixture
 def pg_gateway():
     with tempfile.NamedTemporaryFile(mode="w+t", suffix=".ini") as temp_file:

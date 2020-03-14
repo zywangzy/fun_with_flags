@@ -5,15 +5,17 @@ import pytest
 from funwithflags.definitions import RegisterRequest
 from funwithflags.use_cases import register
 
+from .conftest import LOGIN_USER
+
 
 @pytest.mark.usefixtures("context")
 def test_register(context):
     # Given
     request = RegisterRequest(
-        username="testuser",
-        nickname="usr123",
-        email="test@test.com",
-        password="Password123@",
+        username=LOGIN_USER.username,
+        nickname=LOGIN_USER.nickname,
+        email=LOGIN_USER.email,
+        password=LOGIN_USER.password,
     )
     # When
     result = register(request, context)

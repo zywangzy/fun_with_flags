@@ -112,7 +112,7 @@ class PostgresGateway(DbGateway):
         if user_id is not None and user_id <= 0:
             return User(valid=False)
         query, key = PostgresGateway._read_user_query(user_id, username)
-        result = self.query(query, username) if query else None
+        result = self.query(query, key) if query else None
         return (
             User(
                 user_id=result[0],
@@ -124,8 +124,7 @@ class PostgresGateway(DbGateway):
                 created_at=result[6],
                 valid=True,
             )
-            if result is not None
-            else User()
+            if result else User()
         )
 
     def update_user(self, user_id: int, **kwargs) -> bool:
