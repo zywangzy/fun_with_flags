@@ -62,6 +62,11 @@ class PostgresGateway(DbGateway):
 
     @staticmethod
     def _read_user_query(user_id: Optional[int] = None, username: Optional[str] = None):
+        """Given `user_id` integer and `username` string, generate pair of query
+        string and user id or username to read the user. If `user_id` is not None,
+        return query for reading by user id; else if `username` is not None, return
+        query for reading by `username`; else return a pair of None.
+        """
         query = "SELECT user_id, username, nickname, password, salt, email, created_at FROM users WHERE "
         if user_id:
             return query + "user_id = %s", user_id
@@ -106,8 +111,8 @@ class PostgresGateway(DbGateway):
         return user_id[0] if user_id and len(user_id) == 1 else -1
 
     def read_user(self, user_id: Optional[int] = None, username: Optional[str] = None) -> User:
-        """Given a `user_id` integer, read user info from database and return a
-        `User` object.
+        """Given a `user_id` integer or a `username` string, read user info from
+        database and return a `User` object.
         """
         if user_id is not None and user_id <= 0:
             return User(valid=False)
