@@ -1,7 +1,7 @@
 """Module for the Postgres database gateway."""
 import logging
 from time import sleep
-from typing import Any
+from typing import Any, Optional
 
 import psycopg2
 
@@ -61,7 +61,7 @@ class PostgresGateway(DbGateway):
         self._conn.close()
 
     @staticmethod
-    def _read_user_query(user_id: int = None, username: str = None):
+    def _read_user_query(user_id: Optional[int] = None, username: Optional[str] = None):
         query = "SELECT user_id, username, nickname, password, salt, email, created_at FROM users WHERE "
         if user_id:
             return query + "user_id = %s", user_id
@@ -105,7 +105,7 @@ class PostgresGateway(DbGateway):
         )
         return user_id[0] if user_id and len(user_id) == 1 else -1
 
-    def read_user(self, user_id: int = None, username: str = None) -> User:
+    def read_user(self, user_id: Optional[int] = None, username: Optional[str] = None) -> User:
         """Given a `user_id` integer, read user info from database and return a
         `User` object.
         """
