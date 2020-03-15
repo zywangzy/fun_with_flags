@@ -5,15 +5,17 @@ import logging
 from flask import Flask
 from flask import jsonify, request, make_response
 from flasgger import swag_from, Swagger
+from flask_jwt_simple import JWTManager
 
-from funwithflags.definitions import RegisterRequest
+from funwithflags.definitions import RegisterRequest, LoginRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.gateways import Context
-from funwithflags.use_cases import register
+from funwithflags.use_cases import register, login
 
 logger = logging.getLogger(__name__)
 context = Context()
 app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = 'super-secret'  # TODO: Change this!
 app.config['SWAGGER'] = {
     'title': 'Funwithflags API',
     'openapi': '3.0.2',
@@ -29,6 +31,7 @@ app.config['SWAGGER'] = {
         }
     }
 }
+jwt = JWTManager(app)
 swagger = Swagger(app)
 
 
@@ -80,7 +83,20 @@ def user_register():
 @app.route("/user/login", methods=["POST"])
 @swag_from("swagger_docs/user_login.yml")
 def user_login():
-    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+    try:
+        content = request.get_json(force=True)
+        login_request = LoginRequest(username=content["username"], password=content["password"])
+        username, token = login(login_request, context)
+        return app_response(status.OK, message="OK", username=username, access_token=token)
+    except (KeyError, BadRequestError):
+        return app_response(status.BAD_REQUEST, message="Invalid request")
+    except DatabaseQueryError:
+        return app_response(status.NOT_FOUND, message="Username not found")
+    except Exception as e:
+        logger.info(
+            f'An exception happened when handling login request "{content}": {e}'
+        )
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/user/logout", methods=["POST"])

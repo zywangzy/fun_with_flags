@@ -19,7 +19,7 @@ requestBody:
                         example: 'abcDEF@123'
 responses:
     '200':
-        description: OK. Successfully logged in, returning jwt for authentication.
+        description: OK. Successfully logged in, returning access token (jwt) for authentication.
         content:
             application/json:
                 schema:
@@ -28,7 +28,7 @@ responses:
                         username:
                             type: string
                             example: 'username'
-                        jwt:
+                        access_token:
                             type: string
                             example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
     '400':
@@ -41,6 +41,16 @@ responses:
                         message:
                             type: string
                             example: 'Invalid or malformed request'
+    '404':
+        description: Not found.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Username not found'
     '500':
         description: Internal error.
         content:
