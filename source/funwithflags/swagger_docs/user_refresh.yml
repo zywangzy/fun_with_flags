@@ -1,0 +1,38 @@
+User refresh access token API. Given a refresh token from user, return a new access token or error message.
+---
+description: Given a refresh token from user, validate the refresh token, generate new access token and return it or error message if fails.
+tags:
+    - user
+security:
+    - Bearer: []
+responses:
+    '201':
+        description: Created. Successfully refreshed access token.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        access_token:
+                            type: string
+                            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+    '401':
+        description: Invalid refresh token.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid refresh token'
+    '500':
+        description: Internal error.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Internal error'

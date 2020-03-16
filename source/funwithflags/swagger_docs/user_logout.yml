@@ -5,14 +5,6 @@ tags:
     - user
 security:
     - Bearer: []
-parameters:
-    - in: query
-      name: userid
-      description: pass an optional userid for looking up the user
-      required: true
-      schema:
-          type: int
-          example: 234
 responses:
     '200':
         description: OK. Successfully logged out.
