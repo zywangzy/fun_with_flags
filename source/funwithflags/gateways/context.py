@@ -1,7 +1,9 @@
 """Definition of processing context."""
 from dataclasses import dataclass
+from typing import Optional
 
-from .db_gateway import make_postgres_gateway, PostgresGateway
+from .db_gateway import PostgresGateway
+from .redis_gateway import RedisGateway
 
 
 @dataclass
@@ -10,8 +12,8 @@ class Context:
     """
 
     postgres_gateway: PostgresGateway
+    redis_gateway: RedisGateway
 
-    def __init__(self, postgres_gateway=None):
-        self.postgres_gateway = (
-            make_postgres_gateway() if postgres_gateway is None else postgres_gateway
-        )
+    def __init__(self, postgres_gateway: Optional[PostgresGateway] = None, redis_gateway: Optional[RedisGateway] = None):
+        self.postgres_gateway = postgres_gateway if postgres_gateway else PostgresGateway.create()
+        self.redis_gateway = redis_gateway if redis_gateway else RedisGateway.create()

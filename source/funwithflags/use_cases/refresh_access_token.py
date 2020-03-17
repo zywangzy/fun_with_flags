@@ -3,6 +3,10 @@ from typing import Any
 
 import flask_jwt_extended
 
+from funwithflags.gateways.context import Context
 
-def refresh_access_token(identity: Any) -> str:
-    return flask_jwt_extended.create_access_token(identity=identity)
+
+def refresh_access_token(identity: Any, context: Context) -> str:
+    new_token = flask_jwt_extended.create_access_token(identity=identity)
+    context.redis_gateway.put(flask_jwt_extended.get_jti(encoded_token=new_token), "login")
+    return new_token

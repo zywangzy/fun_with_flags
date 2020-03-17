@@ -8,7 +8,7 @@ from flask import jsonify, request, make_response
 from flasgger import swag_from, Swagger
 from flask_jwt_extended import get_raw_jwt, get_jwt_identity, JWTManager, jwt_refresh_token_required, jwt_required
 
-from funwithflags.definitions import RegisterRequest, LoginRequest
+from funwithflags.definitions import RegisterRequest, LoginRequest, LogoutRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.gateways import Context
 from funwithflags.use_cases import register, login, logout, refresh_access_token
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 context = Context()
 app = Flask(__name__)
 
-# Setup the flask-jwt-extended extension. See:
+# Setup the jwt relevant config
 ACCESS_EXPIRES = timedelta(minutes=10)
 REFRESH_EXPIRES = timedelta(days=7)
 app.config['JWT_SECRET_KEY'] = 'super-secret'  # TODO: Change this!
@@ -30,8 +30,9 @@ jwt = JWTManager(app)
 
 @jwt.token_in_blacklist_loader
 def check_if_token_is_revoked(decrypted_token):
-    _ = decrypted_token['jti']
-    return False
+    jti = decrypted_token['jti']
+    value = context.redis_gateway.get(jti)
+    return value is None or value == "logout"
 
 
 # Setup Swagger config
@@ -135,14 +136,20 @@ def user_refresh_access_token():
 
 
 @app.route("/user/logout", methods=["DELETE"])
-@jwt_required
+@jwt_refresh_token_required
 @swag_from("swagger_docs/user_logout.yml")
 def user_logout():
     jti = get_raw_jwt().get('jti', None)
-    if not jti:
-        return app_response(status.UNAUTHORIZED, message="Unauthorized error")
     user_id = get_jwt_identity()
-    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+    if not jti or not user_id:
+        return app_response(status.UNAUTHORIZED, message="Unauthorized error")
+    try:
+        logout_request = LogoutRequest(user_id=user_id, token=jti)
+        logout(logout_request, context)
+        return app_response(status.OK, message="OK")
+    except Exception as e:
+        logger.info(f'An exception happened when handling logout request {logout_request}: e')
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/user/update", methods=["POST"])
