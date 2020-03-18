@@ -21,6 +21,6 @@ def login(request: LoginRequest, context: Context) -> (str, str, str):
         raise BadRequestError
     access_token = flask_jwt_extended.create_access_token(identity=user.user_id, fresh=True)
     refresh_token = flask_jwt_extended.create_refresh_token(identity=user.user_id)
-    context.redis_gateway.put(flask_jwt_extended.get_jti(encoded_token=access_token), "login")
-    context.redis_gateway.put(flask_jwt_extended.get_jti(encoded_token=refresh_token), "login")
+    context.redis_gateway.set(flask_jwt_extended.get_jti(encoded_token=access_token), "login")
+    context.redis_gateway.set(flask_jwt_extended.get_jti(encoded_token=refresh_token), "login")
     return request.username, access_token, refresh_token

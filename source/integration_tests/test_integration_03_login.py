@@ -1,7 +1,7 @@
 """Integration test for login."""
 import pytest
 
-import flask_jwt_simple
+import flask_jwt_extended
 
 from funwithflags.definitions import LoginRequest, BadRequestError, DatabaseQueryError
 from funwithflags.use_cases import login
@@ -17,21 +17,39 @@ def test_login(monkeypatch, context):
         username=expected_username,
         password="Password123@"
     )
-    expected_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."\
-                     "eyJleHAiOjE1ODM5MTIzMTAsImlhdCI6MTU4MzkwODcxMCwibmJmIjoxNTgzOTA4NzEwLCJzdWIiOjF9."\
-                     "eilQgqIePisy1bURTtPjJNBR74VrWpun6H0ET6r1Quk"
+    expected_access_token = "expected.Access.Token"
+    expected_refresh_token = "expected.Refresh.Token"
+    expected_access_jti = "expected.Access.Jti"
+    expected_refresh_jti = "expected.Refresh.Jti"
 
-    # Monkeypatch flask_jwt_simple
-    def mock_create_jwt(identity):
-        return expected_token
+    # Monkeypatch flask_jwt_extended
+    def mock_create_access_token(identity, fresh):
+        return expected_access_token
 
-    monkeypatch.setattr(flask_jwt_simple, 'create_jwt', mock_create_jwt)
+    def mock_create_refresh_token(identity):
+        return expected_refresh_token
+
+    def mock_get_jti(encoded_token):
+        if encoded_token == expected_access_token:
+            return expected_access_jti
+        elif encoded_token == expected_refresh_token:
+            return expected_refresh_jti
+
+    monkeypatch.setattr(flask_jwt_extended, 'create_access_token', mock_create_access_token)
+    monkeypatch.setattr(flask_jwt_extended, 'create_refresh_token', mock_create_refresh_token)
+    monkeypatch.setattr(flask_jwt_extended, 'get_jti', mock_get_jti)
 
     # When
-    username, token = login(request, context)
+    username, access_token, refresh_token = login(request, context)
+    cache_access_value = context.redis_gateway.get(expected_access_jti)
+    cache_refresh_value = context.redis_gateway.get(expected_refresh_jti)
+
     # Then
     assert username == expected_username
-    assert token == expected_token
+    assert access_token == expected_access_token
+    assert refresh_token == expected_refresh_token
+    assert cache_access_value and cache_access_value == "login"
+    assert cache_refresh_value and cache_refresh_value == "login"
 
 
 @pytest.mark.usefixtures("context")

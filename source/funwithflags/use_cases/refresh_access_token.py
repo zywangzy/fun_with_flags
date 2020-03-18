@@ -8,5 +8,5 @@ from funwithflags.gateways.context import Context
 
 def refresh_access_token(identity: Any, context: Context) -> str:
     new_token = flask_jwt_extended.create_access_token(identity=identity)
-    context.redis_gateway.put(flask_jwt_extended.get_jti(encoded_token=new_token), "login")
+    context.redis_gateway.set(flask_jwt_extended.get_jti(encoded_token=new_token), "login")
     return new_token

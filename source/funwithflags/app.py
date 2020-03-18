@@ -30,6 +30,7 @@ jwt = JWTManager(app)
 
 @jwt.token_in_blacklist_loader
 def check_if_token_is_revoked(decrypted_token):
+    """Return true if decrypted_token is revoked."""
     jti = decrypted_token['jti']
     value = context.redis_gateway.get(jti)
     return value is None or value == "logout"

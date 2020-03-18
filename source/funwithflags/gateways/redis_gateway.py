@@ -1,5 +1,7 @@
 """Module for Redis cache gateway."""
+from datetime import timedelta
 import logging
+from typing import Optional
 
 import redis
 
@@ -16,11 +18,12 @@ class RedisGateway:
         self._db = db
         self._redis = redis.Redis(host=self._host, port=self._port, db=self._db)
 
-    def put(self, name: str, value: str) -> bool:
-        return self._redis.set(name, value)
+    def set(self, name: str, value: str, expire: Optional[timedelta] = None) -> bool:
+        return self._redis.set(name, value, ex=expire)
 
-    def get(self, name: str) -> str:
-        return self._redis.get(name)
+    def get(self, name: str) -> Optional[str]:
+        value = self._redis.get(name)
+        return value.decode("utf-8") if value else value
 
     @staticmethod
     def create(filename="config.ini"):
@@ -29,7 +32,7 @@ class RedisGateway:
         try:
             section = "redis"
             config = read_config_file(filename, section)
-            return RedisGateway()
+            return RedisGateway(host=config["host"], port=int(config["port"]), db=int(config["db"]))
         except KeyError as e:
             logger.error(f"Invalid config file \"{filename}\" section \"{section}\": {e}")
             raise e

@@ -6,4 +6,4 @@ from funwithflags.gateways import Context
 
 
 def logout(logout_request: LogoutRequest, context: Context):
-    context.redis_gateway.put(flask_jwt_extended.get_jti(encoded_token=logout_request.token), "logout")
+    context.redis_gateway.set(flask_jwt_extended.get_jti(encoded_token=logout_request.token), "logout")
