@@ -1,5 +1,4 @@
 """Main entrypoint of RESTful API service."""
-from datetime import timedelta
 from http import HTTPStatus as status
 import logging
 
@@ -10,6 +9,7 @@ from flask_jwt_extended import get_raw_jwt, get_jwt_identity, JWTManager, jwt_re
 
 from funwithflags.definitions import RegisterRequest, LoginRequest, LogoutRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
+from funwithflags.definitions import ACCESS_EXPIRES, REFRESH_EXPIRES
 from funwithflags.gateways import Context
 from funwithflags.use_cases import register, login, logout, refresh_access_token
 
@@ -18,8 +18,6 @@ context = Context()
 app = Flask(__name__)
 
 # Setup the jwt relevant config
-ACCESS_EXPIRES = timedelta(minutes=10)
-REFRESH_EXPIRES = timedelta(days=7)
 app.config['JWT_SECRET_KEY'] = 'super-secret'  # TODO: Change this!
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = ACCESS_EXPIRES
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = REFRESH_EXPIRES

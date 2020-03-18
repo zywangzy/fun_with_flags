@@ -15,17 +15,19 @@ def test_create_redis_gateway(redis_gateway):
                              ("testname1", "value1", timedelta(seconds=1)),
                              ("testname2", "value2", None),
                              ("testname2", "value3", None),
+                             ("testname3", 1, None)
                          ])
 def test_set(redis_gateway, name, value, ex):
     redis_gateway.set(name, value, ex)
 
 
 @pytest.mark.usefixtures("redis_gateway")
-@pytest.mark.parametrize("name,expected", [("wrongName", None), ("testname1", "value1"), ("testname2", "value3")])
+@pytest.mark.parametrize("name,expected",
+                         [("wrongName", None), ("testname1", "value1"), ("testname2", "value3"), ("testname3", 1)])
 def test_get(redis_gateway, name, expected):
     # When & Then
     if expected:
-        assert expected == redis_gateway.get(name)
+        assert str(expected) == redis_gateway.get(name)
     else:
         assert redis_gateway.get(name) is expected
 
