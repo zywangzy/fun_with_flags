@@ -3,7 +3,7 @@ import tempfile
 
 from funwithflags.entities import (
     generate_update_params,
-    read_postgres_config,
+    read_config_file,
 )
 from funwithflags.gateways import PostgresGateway
 
@@ -31,7 +31,7 @@ def test_read_postgres_config():
         temp_file.seek(0)
 
         # When
-        config = read_postgres_config(temp_file.name)
+        config = read_config_file(temp_file.name)
 
         # Then
         assert expected_config == config

@@ -5,17 +5,36 @@ import logging
 from flask import Flask
 from flask import jsonify, request, make_response
 from flasgger import swag_from, Swagger
-from flask_jwt_simple import JWTManager
+from flask_jwt_extended import get_raw_jwt, get_jwt_identity, JWTManager, jwt_refresh_token_required, jwt_required
 
-from funwithflags.definitions import RegisterRequest, LoginRequest
+from funwithflags.definitions import RegisterRequest, LoginRequest, LogoutRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
+from funwithflags.definitions import ACCESS_EXPIRES, REFRESH_EXPIRES
 from funwithflags.gateways import Context
-from funwithflags.use_cases import register, login
+from funwithflags.use_cases import register, login, logout, refresh_access_token
 
 logger = logging.getLogger(__name__)
 context = Context()
 app = Flask(__name__)
+
+# Setup the jwt relevant config
 app.config['JWT_SECRET_KEY'] = 'super-secret'  # TODO: Change this!
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = ACCESS_EXPIRES
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = REFRESH_EXPIRES
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['refresh']  # Only check refresh token
+jwt = JWTManager(app)
+
+
+@jwt.token_in_blacklist_loader
+def check_if_token_is_revoked(decrypted_token):
+    """Return true if decrypted_token is revoked."""
+    jti = decrypted_token['jti']
+    value = context.redis_gateway.get(jti)
+    return value is None or value == "logout"
+
+
+# Setup Swagger config
 app.config['SWAGGER'] = {
     'title': 'Funwithflags API',
     'openapi': '3.0.2',
@@ -31,7 +50,7 @@ app.config['SWAGGER'] = {
         }
     }
 }
-jwt = JWTManager(app)
+
 swagger = Swagger(app)
 
 
@@ -86,8 +105,13 @@ def user_login():
     try:
         content = request.get_json(force=True)
         login_request = LoginRequest(username=content["username"], password=content["password"])
-        username, token = login(login_request, context)
-        return app_response(status.OK, message="OK", username=username, access_token=token)
+        username, access_token, refresh_token = login(login_request, context)
+        return app_response(
+            status.OK,
+            message="OK",
+            username=username,
+            access_token=access_token,
+            refresh_token=refresh_token)
     except (KeyError, BadRequestError):
         return app_response(status.BAD_REQUEST, message="Invalid request")
     except DatabaseQueryError:
@@ -99,10 +123,32 @@ def user_login():
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
-@app.route("/user/logout", methods=["POST"])
+@app.route("/user/refresh_access_token", methods=["POST"])
+@jwt_refresh_token_required
+@swag_from("swagger_docs/user_refresh.yml")
+def user_refresh_access_token():
+    user_id = get_jwt_identity()
+    if not user_id:
+        return app_response(status.UNAUTHORIZED, message="Unauthorized error: invalid refresh token")
+    access_token = refresh_access_token(identity=user_id)
+    return app_response(status.CREATED, message="Created", access_token=access_token)
+
+
+@app.route("/user/logout", methods=["DELETE"])
+@jwt_refresh_token_required
 @swag_from("swagger_docs/user_logout.yml")
 def user_logout():
-    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+    jti = get_raw_jwt().get('jti', None)
+    user_id = get_jwt_identity()
+    if not jti or not user_id:
+        return app_response(status.UNAUTHORIZED, message="Unauthorized error")
+    try:
+        logout_request = LogoutRequest(user_id=user_id, token=jti)
+        logout(logout_request, context)
+        return app_response(status.OK, message="OK")
+    except Exception as e:
+        logger.info(f'An exception happened when handling logout request {logout_request}: e')
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/user/update", methods=["POST"])

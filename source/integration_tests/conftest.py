@@ -3,7 +3,7 @@ import pytest
 import tempfile
 
 from funwithflags.definitions import User
-from funwithflags.gateways import Context, make_postgres_gateway
+from funwithflags.gateways import Context, PostgresGateway, RedisGateway
 
 
 """Test variables."""
@@ -13,6 +13,11 @@ port=5432
 dbname=postgres
 user=service
 password=password
+"""
+REDIS_CONFIG = """[redis]
+host=cacheredis
+port=6379
+db=0
 """
 CREATE_TIME = datetime.now()
 EXAMPLE_USER = User(
@@ -45,10 +50,18 @@ def pg_gateway():
     with tempfile.NamedTemporaryFile(mode="w+t", suffix=".ini") as temp_file:
         temp_file.write(DATABASE_CONFIG)
         temp_file.seek(0)
-        return make_postgres_gateway(temp_file.name)
+        return PostgresGateway.create(temp_file.name)
 
 
 @pytest.fixture
-@pytest.mark.usefixtures("pg_gateway")
-def context(pg_gateway):
-    return Context(postgres_gateway=pg_gateway)
+def redis_gateway():
+    with tempfile.NamedTemporaryFile(mode="w+t", suffix=".ini") as temp_file:
+        temp_file.write(REDIS_CONFIG)
+        temp_file.seek(0)
+        return RedisGateway.create(temp_file.name)
+
+
+@pytest.fixture
+@pytest.mark.usefixtures("pg_gateway", "redis_gateway")
+def context(pg_gateway, redis_gateway):
+    return Context(postgres_gateway=pg_gateway, redis_gateway=redis_gateway)

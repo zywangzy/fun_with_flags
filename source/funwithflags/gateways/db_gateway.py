@@ -7,7 +7,7 @@ import psycopg2
 
 from .db_gateway_abc import DbGateway
 from funwithflags.definitions import DatabaseQueryError, User
-from funwithflags.entities import generate_update_params, read_postgres_config
+from funwithflags.entities import generate_update_params, read_config_file
 
 
 logger = logging.getLogger(__name__)
@@ -153,22 +153,23 @@ class PostgresGateway(DbGateway):
         result = self.query(query, user_id)
         return result == 1
 
-
-def make_postgres_gateway(filename="database.ini") -> PostgresGateway:
-    """Factory method to create a `PostgresGateway` object.
-    """
-    try:
-        config = read_postgres_config(filename)
-        return PostgresGateway(
-            host=config["host"],
-            port=int(config["port"]),
-            dbname=config["dbname"],
-            user=config["user"],
-            password=config["password"],
-        )
-    except KeyError as e:
-        logger.error(f"Invalid database config file: {e}")
-        raise e
-    except Exception as e:
-        logger.error(f"Failed to initialize PostgresGateway: {e}")
-        raise e
+    @staticmethod
+    def create(filename="config.ini") -> DbGateway:
+        """Factory method to create a `PostgresGateway` object.
+        """
+        try:
+            section = "postgresql"
+            config = read_config_file(filename, section)
+            return PostgresGateway(
+                host=config["host"],
+                port=int(config["port"]),
+                dbname=config["dbname"],
+                user=config["user"],
+                password=config["password"],
+            )
+        except KeyError as e:
+            logger.error(f"Invalid config file \"{filename}\" section \"{section}\": {e}")
+            raise e
+        except Exception as e:
+            logger.error(f"Failed to initialize PostgresGateway: {e}")
+            raise e

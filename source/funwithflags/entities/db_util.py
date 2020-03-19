@@ -3,8 +3,8 @@ from configparser import ConfigParser
 from typing import List, Mapping
 
 
-def read_postgres_config(
-    filename="database.ini", section="postgresql"
+def read_config_file(
+    filename: str = "config.ini", section: str = "postgresql"
 ) -> Mapping[str, str]:
     """Read configuration file and return a dictionary mapping from field name to field value.
     """

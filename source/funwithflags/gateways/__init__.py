@@ -1,3 +1,4 @@
 """Initialize the package."""
 from .context import Context
-from .db_gateway import make_postgres_gateway, PostgresGateway
+from .db_gateway import PostgresGateway
+from .redis_gateway import RedisGateway
