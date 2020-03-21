@@ -8,20 +8,14 @@ from funwithflags.use_cases import logout
 
 
 @pytest.mark.usefixtures("context")
-def test_logout(monkeypatch, context):
+def test_logout(context):
     # Given
-    refresh_token = "token"
-    expected_jti = "fake.jti"
+    jti = "fake.jti"
     expected_status = "logout"
 
-    def mock_get_jti(encoded_token):
-        return expected_jti
-
-    monkeypatch.setattr(flask_jwt_extended, 'get_jti', mock_get_jti)
-
     # When
-    logout(LogoutRequest(1, refresh_token), context)
+    logout(LogoutRequest(jti), context)
 
     # Then
-    status = context.redis_gateway.get(expected_jti)
+    status = context.redis_gateway.get(jti)
     assert status and expected_status == status

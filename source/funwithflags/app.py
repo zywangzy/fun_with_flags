@@ -130,7 +130,7 @@ def user_refresh_access_token():
     user_id = get_jwt_identity()
     if not user_id:
         return app_response(status.UNAUTHORIZED, message="Unauthorized error: invalid refresh token")
-    access_token = refresh_access_token(identity=user_id)
+    access_token = refresh_access_token(identity=user_id, context=context)
     return app_response(status.CREATED, message="Created", access_token=access_token)
 
 
@@ -143,7 +143,7 @@ def user_logout():
     if not jti or not user_id:
         return app_response(status.UNAUTHORIZED, message="Unauthorized error")
     try:
-        logout_request = LogoutRequest(user_id=user_id, token=jti)
+        logout_request = LogoutRequest(jti)
         logout(logout_request, context)
         return app_response(status.OK, message="OK")
     except Exception as e:

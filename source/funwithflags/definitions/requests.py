@@ -50,5 +50,4 @@ class LoginRequest:
 
 @dataclass
 class LogoutRequest:
-    user_id: int
-    token:   str
+    jti:     str
