@@ -23,4 +23,4 @@ COPY main.py .
 ENV PORT=8080
 
 # Command to startup the container
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "main"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "funwithflags.app:app"]
