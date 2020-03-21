@@ -2,5 +2,6 @@ bcrypt
 flask
 flask-jwt-extended
 flasgger==0.9.2
+gunicorn
 psycopg2
 redis==3.4.1

@@ -147,8 +147,8 @@ def user_logout():
         logout(logout_request, context)
         return app_response(status.OK, message="OK")
     except Exception as e:
-        logger.info(f'An exception happened when handling logout request {logout_request}: e')
-        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
+        logger.info(f'An exception happened when handling logout request {logout_request}: {e}')
+        return app_response(status.INTERNAL_SERVER_ERROR, message=f"Internal error")
 
 
 @app.route("/user/update", methods=["POST"])
