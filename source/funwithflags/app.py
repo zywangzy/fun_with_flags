@@ -51,7 +51,22 @@ app.config['SWAGGER'] = {
     }
 }
 
-swagger = Swagger(app)
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "apispec_1",
+            "route": "/api/apispec_1.json",
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/api/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/api/apidocs/"
+}
+
+swagger = Swagger(app, config=swagger_config)
 
 
 UNSUPPORTED = "Unsupported function"
@@ -69,13 +84,13 @@ def hello_world():
     return "Hello, World!"
 
 
-@app.route("/user/<user_id>", methods=["GET"])
+@app.route("/api/user/<user_id>", methods=["GET"])
 @swag_from("swagger_docs/user_read.yml")
 def user_read(user_id):
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
-@app.route("/user/register", methods=["POST"])
+@app.route("/api/user/register", methods=["POST"])
 @swag_from("swagger_docs/user_register.yml")
 def user_register():
     try:
@@ -99,7 +114,7 @@ def user_register():
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
-@app.route("/user/login", methods=["POST"])
+@app.route("/api/user/login", methods=["POST"])
 @swag_from("swagger_docs/user_login.yml")
 def user_login():
     try:
@@ -123,18 +138,18 @@ def user_login():
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
-@app.route("/user/refresh_access_token", methods=["POST"])
+@app.route("/api/user/refresh_access_token", methods=["POST"])
 @jwt_refresh_token_required
 @swag_from("swagger_docs/user_refresh.yml")
 def user_refresh_access_token():
     user_id = get_jwt_identity()
     if not user_id:
         return app_response(status.UNAUTHORIZED, message="Unauthorized error: invalid refresh token")
-    access_token = refresh_access_token(identity=user_id)
+    access_token = refresh_access_token(identity=user_id, context=context)
     return app_response(status.CREATED, message="Created", access_token=access_token)
 
 
-@app.route("/user/logout", methods=["DELETE"])
+@app.route("/api/user/logout", methods=["DELETE"])
 @jwt_refresh_token_required
 @swag_from("swagger_docs/user_logout.yml")
 def user_logout():
@@ -143,27 +158,27 @@ def user_logout():
     if not jti or not user_id:
         return app_response(status.UNAUTHORIZED, message="Unauthorized error")
     try:
-        logout_request = LogoutRequest(user_id=user_id, token=jti)
+        logout_request = LogoutRequest(jti)
         logout(logout_request, context)
         return app_response(status.OK, message="OK")
     except Exception as e:
-        logger.info(f'An exception happened when handling logout request {logout_request}: e')
-        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
+        logger.info(f'An exception happened when handling logout request {logout_request}: {e}')
+        return app_response(status.INTERNAL_SERVER_ERROR, message=f"Internal error")
 
 
-@app.route("/user/update", methods=["POST"])
+@app.route("/api/user/update", methods=["POST"])
 @swag_from("swagger_docs/user_update.yml")
 def user_update():
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
-@app.route("/project/<project_id>", methods=["GET"])
+@app.route("/api/project/<project_id>", methods=["GET"])
 @swag_from("swagger_docs/project_read.yml")
 def project_read(project_id):
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
-@app.route("/project/create", methods=["POST"])
+@app.route("/api/project/create", methods=["POST"])
 @swag_from("swagger_docs/project_create.yml")
 def project_create():
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)

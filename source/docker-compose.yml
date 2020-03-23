@@ -16,11 +16,18 @@ services:
                 build:
                         context: .
                         dockerfile: ./Dockerfile-dev
-                ports:
-                        - "8080:8080"
                 environment:
                         PORT: 8080
                 links:
                         - dbpostgres
                         - cacheredis
+                restart: always
+        proxyserver:
+                build:
+                        context: proxy_server
+                depends_on:
+                        - apiservice
+                ports:
+                        - 80:80
+                        - 8080:8080
                 restart: always

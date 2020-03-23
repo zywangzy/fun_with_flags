@@ -15,7 +15,7 @@ RUN pip install -r requirements.txt
 
 # Copy all the files from current source directory(from your system) to
 # Docker container in /usr/src/app directory
-COPY db/database.ini .
+COPY db/config.ini .
 COPY funwithflags/. ./funwithflags
 COPY main.py .
 
@@ -23,4 +23,4 @@ COPY main.py .
 ENV PORT=8080
 
 # Command to startup the container
-CMD ["python", "-u", "main.py"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "funwithflags.app:app"]

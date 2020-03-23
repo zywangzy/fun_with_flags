@@ -1,6 +1,6 @@
 """Entry point of server."""
-from funwithflags.app import main
+from funwithflags.app import app as application
 
 
 if __name__ == "__main__":
-    main()
+    application.run(host="0.0.0.0", port=8080)

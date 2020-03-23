@@ -1,4 +1,6 @@
 .idea
+venv27
 venv3
+venv38
 source/services/db/test/init_db.sql
 source/services/db/test/docker
