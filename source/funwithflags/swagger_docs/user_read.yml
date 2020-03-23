@@ -40,6 +40,9 @@ responses:
                         email:
                             type: string
                             example: 'user@example.com'
+                        created_at:
+                            type: string
+                            example: '2020-03-22 23:55:53.813500'
     '400':
         description: Bad (invalid / malformed) request.
         content:

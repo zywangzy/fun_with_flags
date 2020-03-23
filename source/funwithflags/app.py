@@ -11,7 +11,7 @@ from funwithflags.definitions import RegisterRequest, LoginRequest, LogoutReques
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.definitions import ACCESS_EXPIRES, REFRESH_EXPIRES
 from funwithflags.gateways import Context
-from funwithflags.use_cases import register, login, logout, refresh_access_token
+from funwithflags.use_cases import register, login, logout, read_user_basic, refresh_access_token
 
 logger = logging.getLogger(__name__)
 context = Context()
@@ -85,9 +85,16 @@ def hello_world():
 
 
 @app.route("/api/user/<user_id>", methods=["GET"])
+@jwt_required
 @swag_from("swagger_docs/user_read.yml")
 def user_read(user_id):
-    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+    try:
+        user = read_user_basic(int(user_id), context)
+        return app_response(status.OK, message="OK", **user)
+    except ValueError:
+        return app_response(status.BAD_REQUEST, message="Invalid user id")
+    except Exception:
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/user/register", methods=["POST"])
