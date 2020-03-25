@@ -12,7 +12,7 @@ def read_user_basic(user_id: int, context: Context) -> Mapping[str, Any]:
         "username": user.username,
         "nickname": user.nickname,
         "email": user.email,
-        "created_at": user.created_at
+        "created_at": str(user.created_at)
     }
 
 

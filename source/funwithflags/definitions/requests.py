@@ -1,6 +1,7 @@
 """Module for user signup request."""
 from dataclasses import dataclass
 import re
+from typing import Mapping, Optional
 
 from .exceptions import BadRequestError
 
@@ -51,3 +52,40 @@ class LoginRequest:
 @dataclass
 class LogoutRequest:
     jti:     str
+
+
+@dataclass
+class UserUpdateRequest:
+    user_id: int
+    fields: Mapping[str, str]
+    protected: bool = False
+
+    def __post_init__(self):
+        self.fields = {field: value for field, value in self.fields.items() if UserUpdateRequest._is_valid_field(field)}
+        if len(self.fields) == 0:
+            raise BadRequestError("No valid fields")
+        if self.protected:
+            for field, value in self.fields.items():
+                if not UserUpdateRequest._is_protected_field(field):
+                    raise BadRequestError("Invalid protected field")
+                if field == "username" and len(value) < 3:
+                    raise BadRequestError("Invalid username")
+                if field == "email" and validate_email(value):
+                    raise BadRequestError("Invalid email")
+                if field == "password" and validate_email(value):
+                    raise BadRequestError("Invalid password")
+        else:
+            for field, value in self.fields.items():
+                if UserUpdateRequest._is_protected_field(field):
+                    raise BadRequestError("No access to update protected field")
+
+    _valid_fields = {"username", "nickname", "email", "password"}
+    _protected_fields = {"username", "email", "password"}
+
+    @staticmethod
+    def _is_valid_field(name: str):
+        return name in UserUpdateRequest._valid_fields
+
+    @staticmethod
+    def _is_protected_field(name: str):
+        return name in UserUpdateRequest._protected_fields
