@@ -1,7 +1,7 @@
 """Module for user signup request."""
 from dataclasses import dataclass
 import re
-from typing import Mapping, Optional
+from typing import Mapping
 
 from .exceptions import BadRequestError
 
@@ -70,9 +70,9 @@ class UserUpdateRequest:
                     raise BadRequestError("Invalid protected field")
                 if field == "username" and len(value) < 3:
                     raise BadRequestError("Invalid username")
-                if field == "email" and validate_email(value):
+                if field == "email" and not validate_email(value):
                     raise BadRequestError("Invalid email")
-                if field == "password" and validate_email(value):
+                if field == "password" and not validate_email(value):
                     raise BadRequestError("Invalid password")
         else:
             for field, value in self.fields.items():

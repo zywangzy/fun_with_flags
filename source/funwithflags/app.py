@@ -209,6 +209,8 @@ def user_update_secret():
         return app_response(status.OK, message="Updated")
     except BadRequestError as e:
         return app_response(status.BAD_REQUEST, message=f"Bad request: {e}")
+    except DatabaseQueryError:
+        return app_response(status.UNAUTHORIZED, "Unauthorized error: user not found")
     except Exception as e:
         logger.info(f'An exception happened when handling logout request {update_request}: {e}')
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
