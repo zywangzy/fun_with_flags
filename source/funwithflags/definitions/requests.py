@@ -70,7 +70,7 @@ class UserUpdateRequest:
                     raise BadRequestError("Invalid username")
                 if field == "email" and not validate_email(value):
                     raise BadRequestError("Invalid email")
-                if field == "password" and not validate_email(value):
+                if field == "password" and not validate_password(value):
                     raise BadRequestError("Invalid password")
         else:
             for field, value in self.fields.items():
