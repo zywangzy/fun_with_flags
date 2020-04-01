@@ -36,5 +36,6 @@ def test_read_user_basic(create_user, context):
      (1, DatabaseQueryError)]
 )
 def test_read_user_basic_failure(context, user_id, exception):
+    # When & Then
     with pytest.raises(exception):
         read_user_basic(user_id=user_id, context=context)

@@ -26,6 +26,7 @@ def get_user_id(context):
      (1, {"username": "userName"}, True, DatabaseQueryError)]
 )
 def test_update_user_failure(context, user_id, kwargs, protected, exception):
+    # When & Then
     with pytest.raises(exception):
         if user_id is None:
             global global_user_id
