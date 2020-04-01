@@ -66,8 +66,6 @@ class UserUpdateRequest:
             raise BadRequestError("No valid fields")
         if self.protected:
             for field, value in self.fields.items():
-                if not UserUpdateRequest._is_protected_field(field):
-                    raise BadRequestError("Invalid protected field")
                 if field == "username" and len(value) < 3:
                     raise BadRequestError("Invalid username")
                 if field == "email" and not validate_email(value):

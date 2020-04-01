@@ -100,6 +100,10 @@ def user_read(user_id):
         return app_response(status.OK, message="OK", **user)
     except ValueError:
         return app_response(status.BAD_REQUEST, message="Invalid user id")
+    except BadRequestError as e:
+        return app_response(status.NOT_FOUND, message="User not found")
+    except DatabaseQueryError as e:
+        return app_response(status.NOT_FOUND, message="Read user error")
     except Exception:
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 

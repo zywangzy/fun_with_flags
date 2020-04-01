@@ -6,7 +6,7 @@ from typing import Any, Optional
 import psycopg2
 
 from .db_gateway_abc import DbGateway
-from funwithflags.definitions import DatabaseQueryError, User
+from funwithflags.definitions import BadRequestError, DatabaseQueryError, InternalError, User
 from funwithflags.entities import generate_update_params, read_config_file
 
 
@@ -76,8 +76,11 @@ class PostgresGateway(DbGateway):
             return None, None
 
     def query(self, query: str, *args) -> Any:
-        """Given a `query` string, do the query and return result.
+        """Given a `query` string, do the query and return result, raise a BadRequestError
+        if query is invalid or DatabaseQueryError if anything wrong happens during query.
         """
+        if query is None or len(query) == 0:
+            raise BadRequestError("Invalid query statement")
         try:
             cur = self._conn.cursor()
             cur.execute(query, args)
@@ -95,7 +98,8 @@ class PostgresGateway(DbGateway):
 
     def create_user(self, user: User) -> int:
         """Given a `user` object, create user entry in database table and return
-        an integer of `user_id` of created user. Returns -1 if creation fails.
+        an integer of `user_id` of created user. Raise DatabaseQueryError if creation
+        failed.
         """
         query = """INSERT INTO users(username, nickname, email, password, salt, created_at)
                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING user_id"""
@@ -108,18 +112,22 @@ class PostgresGateway(DbGateway):
             user.salt,
             user.created_at,
         )
-        return user_id[0] if user_id and len(user_id) == 1 else -1
+        if user_id and len(user_id) == 1:
+            return user_id[0]
+        else:
+            raise DatabaseQueryError
 
     def read_user(self, user_id: Optional[int] = None, username: Optional[str] = None) -> User:
         """Given a `user_id` integer or a `username` string, read user info from
-        database and return a `User` object.
+        database and return a `User` object. Raise BadRequestError if query argument
+        is invalid or DatabaseQueryError if query failed.
         """
         if user_id is not None and user_id <= 0:
-            return User(valid=False)
+            raise BadRequestError("Invalid user id")
         query, key = PostgresGateway._read_user_query(user_id, username)
-        result = self.query(query, key) if query else None
-        return (
-            User(
+        try:
+            result = self.query(query, key)
+            return User(
                 user_id=result[0],
                 username=result[1],
                 nickname=result[2],
@@ -129,29 +137,35 @@ class PostgresGateway(DbGateway):
                 created_at=result[6],
                 valid=True,
             )
-            if result else User()
-        )
+        except BadRequestError:
+            raise BadRequestError("Invalid user id and username")
+        except (Exception, DatabaseQueryError) as e:
+            raise DatabaseQueryError
 
-    def update_user(self, user_id: int, **kwargs) -> bool:
+    def update_user(self, user_id: int, **kwargs) -> None:
         """Given a `user_id` integer and keyword only arguments, update fields
-        specified in `kwargs`. Return a boolean indicating if update succeeds.
+        specified in `kwargs`. Raise BadRequestError if update request is invalid
+        or DatabaseQueryError if update query failed.
         """
         field_names, field_vals = generate_update_params(user_id, **kwargs)
         if user_id <= 0 or len(field_vals) == 0:
-            return False
+            raise BadRequestError("Invalid user id or update fields")
         query = f"""UPDATE users SET {field_names} WHERE user_id = %s"""
         result = self.query(query, *field_vals)
-        return result == 1
+        if result != 1:
+            raise DatabaseQueryError("Failed to update")
 
-    def delete_user(self, user_id: int) -> bool:
-        """Given a `user_id` integer, delete user from database table and return a
-        boolean indicating if the operation succeeds or not.
+    def delete_user(self, user_id: int) -> None:
+        """Given a `user_id` integer, delete user from database table and raise
+        BadRequestError if user id is invalid or DatabaseQueryError if query
+        failed.
         """
         if user_id <= 0:
-            return False
+            raise BadRequestError("Invalid user id")
         query = """DELETE FROM users WHERE user_id = %s"""
         result = self.query(query, user_id)
-        return result == 1
+        if result != 1:
+            raise DatabaseQueryError("Failed to delete")
 
     @staticmethod
     def create(filename="config.ini") -> DbGateway:
