@@ -12,3 +12,7 @@ class DatabaseQueryError(ApplicationError):
 
 class BadRequestError(ApplicationError):
     """Exception of bad user request error."""
+
+
+class InternalError(ApplicationError):
+    """Exception of unexpected internal error."""

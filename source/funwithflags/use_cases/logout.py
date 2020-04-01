@@ -1,6 +1,4 @@
 """Module for user logout implementation."""
-import flask_jwt_extended
-
 from funwithflags.definitions import LogoutRequest, REFRESH_EXPIRES
 from funwithflags.gateways import Context
 

@@ -18,5 +18,4 @@ def register(request: RegisterRequest, context: Context):
         salt=salt,
         valid=True,
     )
-    user_id = context.postgres_gateway.create_user(user)
-    return user_id
+    return context.postgres_gateway.create_user(user)

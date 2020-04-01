@@ -5,13 +5,20 @@ import logging
 from flask import Flask
 from flask import jsonify, request, make_response
 from flasgger import swag_from, Swagger
-from flask_jwt_extended import get_raw_jwt, get_jwt_identity, JWTManager, jwt_refresh_token_required, jwt_required
+from flask_jwt_extended import (
+    fresh_jwt_required,
+    get_raw_jwt,
+    get_jwt_identity,
+    JWTManager,
+    jwt_refresh_token_required,
+    jwt_required
+)
 
-from funwithflags.definitions import RegisterRequest, LoginRequest, LogoutRequest
+from funwithflags.definitions import RegisterRequest, LoginRequest, LogoutRequest, UserUpdateRequest
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.definitions import ACCESS_EXPIRES, REFRESH_EXPIRES
 from funwithflags.gateways import Context
-from funwithflags.use_cases import register, login, logout, refresh_access_token
+from funwithflags.use_cases import register, login, logout, read_user_basic, refresh_access_token, update_user
 
 logger = logging.getLogger(__name__)
 context = Context()
@@ -84,10 +91,21 @@ def hello_world():
     return "Hello, World!"
 
 
-@app.route("/api/user/<user_id>", methods=["GET"])
+@app.route("/api/user/user/<user_id>", methods=["GET"])
+@jwt_required
 @swag_from("swagger_docs/user_read.yml")
 def user_read(user_id):
-    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+    try:
+        user = read_user_basic(int(user_id), context)
+        return app_response(status.OK, message="OK", **user)
+    except ValueError:
+        return app_response(status.BAD_REQUEST, message="Invalid user id")
+    except BadRequestError as e:
+        return app_response(status.NOT_FOUND, message="User not found")
+    except DatabaseQueryError as e:
+        return app_response(status.NOT_FOUND, message="Read user error")
+    except Exception:
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/user/register", methods=["POST"])
@@ -167,9 +185,39 @@ def user_logout():
 
 
 @app.route("/api/user/update", methods=["POST"])
+@jwt_required
 @swag_from("swagger_docs/user_update.yml")
 def user_update():
-    return app_response(status.FORBIDDEN, message=UNSUPPORTED)
+    try:
+        user_id = get_jwt_identity()
+        content = request.get_json(force=True)
+        update_request = UserUpdateRequest(user_id=user_id, fields={k: v for k, v in content.items()})
+        update_user(update_request, context)
+        return app_response(status.OK, message="Updated")
+    except BadRequestError as e:
+        return app_response(status.BAD_REQUEST, message=f"Bad request: {e}")
+    except Exception as e:
+        logger.info(f'An exception happened when handling logout request {update_request}: {e}')
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
+
+
+@app.route("/api/user/update_protected", methods=["POST"])
+@fresh_jwt_required
+@swag_from("swagger_docs/user_update.yml")
+def user_update_secret():
+    try:
+        user_id = get_jwt_identity()
+        content = request.get_json(force=True)
+        update_request = UserUpdateRequest(user_id=user_id, fields={k: v for k, v in content.items()}, protected=True)
+        update_user(update_request, context)
+        return app_response(status.OK, message="Updated")
+    except BadRequestError as e:
+        return app_response(status.BAD_REQUEST, message=f"Bad request: {e}")
+    except DatabaseQueryError:
+        return app_response(status.UNAUTHORIZED, "Unauthorized error: user not found")
+    except Exception as e:
+        logger.info(f'An exception happened when handling logout request {update_request}: {e}')
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/project/<project_id>", methods=["GET"])

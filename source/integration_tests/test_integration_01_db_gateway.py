@@ -2,7 +2,7 @@
 import pytest
 
 from funwithflags.definitions import User
-from funwithflags.definitions import DatabaseQueryError
+from funwithflags.definitions import BadRequestError, DatabaseQueryError
 
 from .conftest import CREATE_TIME, EXAMPLE_USER
 
@@ -52,26 +52,39 @@ def test_postgres_gateway_create_user_failure(pg_gateway):
 @pytest.mark.usefixtures("pg_gateway")
 @pytest.mark.parametrize(
     "user_id_name,expected",
-    [(-1, User()), (0, User()), (1, EXAMPLE_USER), (EXAMPLE_USER.username, EXAMPLE_USER), ("NotExist", User())]
+    [(1, EXAMPLE_USER), (EXAMPLE_USER.username, EXAMPLE_USER)]
 )
 def test_postgres_gateway_read_user(pg_gateway, user_id_name, expected):
     # When
-    user = pg_gateway.read_user(user_id=user_id_name) if isinstance(user_id_name, int) else pg_gateway.read_user(
-        username=user_id_name)
+    user = pg_gateway.read_user(user_id=user_id_name) if isinstance(user_id_name, int) else \
+        pg_gateway.read_user(username=user_id_name)
     # Then
     assert compare_users_without_created_at(expected, user)
 
 
 @pytest.mark.usefixtures("pg_gateway")
 @pytest.mark.parametrize(
+    "user_id_name,exception",
+    [(-1, BadRequestError), (0, BadRequestError), (100, DatabaseQueryError), ("NotExist", DatabaseQueryError)]
+)
+def test_postgres_gateway_read_user_failure(pg_gateway, user_id_name, exception):
+    # When & Then
+    with pytest.raises(exception):
+        if isinstance(user_id_name, int):
+            pg_gateway.read_user(user_id=user_id_name)
+        else:
+            pg_gateway.read_user(username=user_id_name)
+
+
+@pytest.mark.usefixtures("pg_gateway")
+@pytest.mark.parametrize(
     "user_id,kwargs,expected",
     [
-        (0, {}, (False, User())),
         (
             1,
             {"username": "newtest", "password": b"654321", "salt": b"321"},
             (
-                True,
+                None,
                 User(
                     user_id=1,
                     username="newtest",
@@ -96,10 +109,32 @@ def test_postgres_gateway_update_user(pg_gateway, user_id, kwargs, expected):
 
 @pytest.mark.usefixtures("pg_gateway")
 @pytest.mark.parametrize(
-    "user_id,expected", [(-1, False), (0, False), (1, True), (2, False)]
+    "user_id, kwargs, exception",
+    [(0, {}, BadRequestError),
+     (1, {}, BadRequestError),
+     (1, {"InvalidField": "abc"}, BadRequestError),
+     (100, {"username": "aUser"}, DatabaseQueryError)]
 )
-def test_postgres_gateway_delete_user(pg_gateway, user_id, expected):
+def test_postgres_gateway_update_user_failure(pg_gateway, user_id, kwargs, exception):
+    # When & Then
+    with pytest.raises(exception):
+        pg_gateway.update_user(user_id, **kwargs)
+
+
+@pytest.mark.usefixtures("pg_gateway")
+def test_postgres_gateway_delete_user(pg_gateway):
     # When
+    user_id = 1
     result = pg_gateway.delete_user(user_id)
     # Then
-    assert expected == result
+    assert result is None
+
+
+@pytest.mark.usefixtures("pg_gateway")
+@pytest.mark.parametrize(
+    "user_id,exception", [(-1, BadRequestError), (0, BadRequestError), (2, DatabaseQueryError)]
+)
+def test_postgres_gateway_delete_user_failure(pg_gateway, user_id, exception):
+    # When & Then
+    with pytest.raises(exception):
+        pg_gateway.delete_user(user_id)
