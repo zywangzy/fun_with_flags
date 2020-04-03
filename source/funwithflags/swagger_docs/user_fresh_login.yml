@@ -1,4 +1,4 @@
-Refresh login API. Given refresh token and password, returns fresh access token or error message.
+Fresh login API. Given refresh token and password, returns fresh access token or error message.
 ---
 description: Given refresh token and password, check if provided credential is correct and return fresh access token if login succeeds, or error message if fails.
 tags:
