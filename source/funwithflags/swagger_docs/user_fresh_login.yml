@@ -1,0 +1,69 @@
+Fresh login API. Given refresh token and password, returns fresh access token or error message.
+---
+description: Given refresh token and password, check if provided credential is correct and return fresh access token if login succeeds, or error message if fails.
+tags:
+    - user
+security:
+    - Bearer: []
+requestBody:
+    description: Fresh login a user, take in password and return fresh access token.
+    required: true
+    content:
+        application/json:
+            schema:
+                type: object
+                properties:
+                    password:
+                        type: string
+                        example: 'abcDEF@123'
+responses:
+    '200':
+        description: OK. Successfully logged in freshly, returning fresh access token (jwt) for authentication.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        access_token:
+                            type: string
+                            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+    '400':
+        description: Bad request.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Invalid or malformed request'
+    '401':
+        description: Unauthorized to request information.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Unauthorized to request information'
+    '404':
+        description: Not found.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Username not found'
+    '500':
+        description: Internal error.
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                        message:
+                            type: string
+                            example: 'Internal error'

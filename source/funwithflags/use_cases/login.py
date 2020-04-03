@@ -15,10 +15,7 @@ def login(request: LoginRequest, context: Context) -> (str, str, str):
     valid but password doesn't match, raise `BadRequestError`.
     """
     user = context.postgres_gateway.read_user(username=request.username)
-    if not user.valid:
-        raise DatabaseQueryError
-    hash_val = hash_password_with_salt(request.password, user.salt)
-    if hash_val != user.password:
+    if hash_password_with_salt(request.password, user.salt) != user.password:
         raise BadRequestError
     access_token = flask_jwt_extended.create_access_token(identity=user.user_id, fresh=True)
     refresh_token = flask_jwt_extended.create_refresh_token(identity=user.user_id)
