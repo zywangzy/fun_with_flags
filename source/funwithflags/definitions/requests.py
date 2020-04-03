@@ -55,7 +55,7 @@ class LogoutRequest:
 
 
 @dataclass
-class RefreshLoginRequest:
+class FreshLoginRequest:
     user_id:  int
     password: str
 

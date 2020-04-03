@@ -14,7 +14,7 @@ from flask_jwt_extended import (
     jwt_required
 )
 
-from funwithflags.definitions import (RegisterRequest, LoginRequest, LogoutRequest, RefreshLoginRequest,
+from funwithflags.definitions import (RegisterRequest, LoginRequest, LogoutRequest, FreshLoginRequest,
                                       UserUpdateRequest)
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.definitions import ACCESS_EXPIRES, REFRESH_EXPIRES
@@ -164,7 +164,7 @@ def user_login():
 def user_fresh_login():
     try:
         content = request.get_json(force=True)
-        login_request = RefreshLoginRequest(user_id=get_jwt_identity(), password=content["password"])
+        login_request = FreshLoginRequest(user_id=get_jwt_identity(), password=content["password"])
         fresh_access_token = fresh_login(login_request, context)
         return app_response(status.OK, message="OK", access_token=fresh_access_token)
     except (KeyError, BadRequestError):
