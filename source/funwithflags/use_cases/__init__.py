@@ -1,4 +1,5 @@
 """Module for use cases."""
+from .fresh_login import fresh_login
 from .register import register
 from .login import login
 from .logout import logout

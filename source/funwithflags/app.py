@@ -14,11 +14,13 @@ from flask_jwt_extended import (
     jwt_required
 )
 
-from funwithflags.definitions import RegisterRequest, LoginRequest, LogoutRequest, UserUpdateRequest
+from funwithflags.definitions import (RegisterRequest, LoginRequest, LogoutRequest, RefreshLoginRequest,
+                                      UserUpdateRequest)
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.definitions import ACCESS_EXPIRES, REFRESH_EXPIRES
 from funwithflags.gateways import Context
-from funwithflags.use_cases import register, login, logout, read_user_basic, refresh_access_token, update_user
+from funwithflags.use_cases import (register, login, fresh_login, logout, read_user_basic, refresh_access_token,
+                                    update_user)
 
 logger = logging.getLogger(__name__)
 context = Context()
@@ -127,7 +129,7 @@ def user_register():
         return app_response(status.CONFLICT, message="Conflict user")
     except Exception as e:
         logger.info(
-            f'An exception happened when handling signup request "{content}": {e}'
+            f'An exception happened when handling register request "{content}": {e}'
         )
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
@@ -152,6 +154,26 @@ def user_login():
     except Exception as e:
         logger.info(
             f'An exception happened when handling login request "{content}": {e}'
+        )
+        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
+
+
+@app.route("/api/user/fresh_login", methods=["POST"])
+@jwt_refresh_token_required
+@swag_from("swagger_docs/user_fresh_login.yml")
+def user_fresh_login():
+    try:
+        content = request.get_json(force=True)
+        login_request = RefreshLoginRequest(user_id=get_jwt_identity(), password=content["password"])
+        fresh_access_token = fresh_login(login_request, context)
+        return app_response(status.OK, message="OK", access_token=fresh_access_token)
+    except (KeyError, BadRequestError):
+        return app_response(status.BAD_REQUEST, message="Invalid request")
+    except DatabaseQueryError:
+        return app_response(status.NOT_FOUND, message="User not found")
+    except Exception as e:
+        logger.info(
+            f'An exception happened when handling refresh login request "{content}": {e}'
         )
         return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 

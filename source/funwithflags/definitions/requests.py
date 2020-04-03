@@ -55,6 +55,12 @@ class LogoutRequest:
 
 
 @dataclass
+class RefreshLoginRequest:
+    user_id:  int
+    password: str
+
+
+@dataclass
 class UserUpdateRequest:
     user_id: int
     fields: Mapping[str, str]
