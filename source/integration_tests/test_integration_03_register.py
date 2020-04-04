@@ -1,5 +1,4 @@
 """Integration test for signup."""
-import json
 import pytest
 
 from funwithflags.definitions import RegisterRequest
