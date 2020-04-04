@@ -8,7 +8,7 @@ from funwithflags.definitions import RegisterRequest, LoginRequest, FreshLoginRe
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.use_cases import register, login, fresh_login, refresh_access_token, logout, read_user_basic, update_user
 
-from .conftest import CREATE_TIME, LOGIN_USER
+from .conftest import CREATE_TIME, EXAMPLE_USER, LOGIN_USER
 
 LOGIN_USER_ID = -1
 
@@ -210,18 +210,26 @@ def test_logout(context):
 
 """Tests for read user"""
 
+EXAMPLE_USER_ID = 0
 
-def test_read_user_basic(context):
+
+@pytest.fixture
+def create_example_user(context):
+    global EXAMPLE_USER_ID
+    EXAMPLE_USER_ID = context.postgres_gateway.create_user(EXAMPLE_USER)
+
+
+def test_read_user_basic(create_example_user, context):
     # Given
-    expected_user_id = LOGIN_USER_ID
+    expected_user_id = EXAMPLE_USER_ID
     # When
     result = read_user_basic(user_id=expected_user_id, context=context)
     # Then
     assert len(result) == 5
     assert result["userid"] == expected_user_id
-    assert result["username"] == LOGIN_USER.username
-    assert result["nickname"] == LOGIN_USER.nickname
-    assert result["email"] == LOGIN_USER.email
+    assert result["username"] == EXAMPLE_USER.username
+    assert result["nickname"] == EXAMPLE_USER.nickname
+    assert result["email"] == EXAMPLE_USER.email
     assert result["created_at"] == str(CREATE_TIME)
 
 
@@ -251,7 +259,6 @@ def test_read_user_basic_failure(context, user_id, exception):
 def test_update_user_failure(context, user_id, kwargs, protected, exception):
     # When & Then
     with pytest.raises(exception):
-        user_id = LOGIN_USER_ID
         request = UserUpdateRequest(user_id=user_id, fields=kwargs, protected=protected)
         update_user(update_request=request, context=context)
 
@@ -264,7 +271,6 @@ def test_update_user_failure(context, user_id, kwargs, protected, exception):
 )
 def test_update_user(monkeypatch, context, fields, protected):
     # Given
-    global LOGIN_USER_ID
     user_id = LOGIN_USER_ID
 
     # Monkeypatch hashpw
