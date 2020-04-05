@@ -1,6 +1,6 @@
 """Main entrypoint of RESTful API service."""
 from http import HTTPStatus as status
-import logging
+import traceback
 
 from flask import Flask
 from flask import jsonify, request, make_response
@@ -95,8 +95,8 @@ def handle_internal_error(func):
     def error_handler(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except Exception as e:
-            logger.info(f'An exception happened when handling {func.__name__} request: {e}')
+        except:
+            logger.info(f'An exception happened when handling {func.__name__} request: {traceback.format_exc()}')
             return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
     error_handler.__name__ = func.__name__
     return error_handler
