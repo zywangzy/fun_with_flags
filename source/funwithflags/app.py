@@ -1,6 +1,6 @@
 """Main entrypoint of RESTful API service."""
 from http import HTTPStatus as status
-import logging
+import traceback
 
 from flask import Flask
 from flask import jsonify, request, make_response
@@ -18,11 +18,12 @@ from funwithflags.definitions import (RegisterRequest, LoginRequest, LogoutReque
                                       UserUpdateRequest)
 from funwithflags.definitions import BadRequestError, DatabaseQueryError
 from funwithflags.definitions import ACCESS_EXPIRES, REFRESH_EXPIRES
+from funwithflags.entities.logging_util import get_module_logger
 from funwithflags.gateways import Context
 from funwithflags.use_cases import (register, login, fresh_login, logout, read_user_basic, refresh_access_token,
                                     update_user)
 
-logger = logging.getLogger(__name__)
+logger = get_module_logger(__name__)
 context = Context()
 app = Flask(__name__)
 
@@ -88,6 +89,19 @@ def app_response(code, message, **data):
     return make_response(jsonify(message=message, **data), code)
 
 
+def handle_internal_error(func):
+    """ Define the decorator for Flask API functions to log unhandled exceptions.
+    """
+    def error_handler(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except:
+            logger.info(f'An exception happened when handling {func.__name__} request: {traceback.format_exc()}')
+            return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
+    error_handler.__name__ = func.__name__
+    return error_handler
+
+
 @app.route("/")
 def hello_world():
     return "Hello, World!"
@@ -96,6 +110,7 @@ def hello_world():
 @app.route("/api/user/user/<user_id>", methods=["GET"])
 @jwt_required
 @swag_from("swagger_docs/user_read.yml")
+@handle_internal_error
 def user_read(user_id):
     try:
         user = read_user_basic(int(user_id), context)
@@ -106,12 +121,11 @@ def user_read(user_id):
         return app_response(status.NOT_FOUND, message="User not found")
     except DatabaseQueryError as e:
         return app_response(status.NOT_FOUND, message="Read user error")
-    except Exception:
-        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/user/register", methods=["POST"])
 @swag_from("swagger_docs/user_register.yml")
+@handle_internal_error
 def user_register():
     try:
         content = request.get_json(force=True)
@@ -127,15 +141,11 @@ def user_register():
         return app_response(status.BAD_REQUEST, message="Invalid request")
     except DatabaseQueryError:
         return app_response(status.CONFLICT, message="Conflict user")
-    except Exception as e:
-        logger.info(
-            f'An exception happened when handling register request "{content}": {e}'
-        )
-        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/user/login", methods=["POST"])
 @swag_from("swagger_docs/user_login.yml")
+@handle_internal_error
 def user_login():
     try:
         content = request.get_json(force=True)
@@ -151,16 +161,12 @@ def user_login():
         return app_response(status.BAD_REQUEST, message="Invalid request")
     except DatabaseQueryError:
         return app_response(status.NOT_FOUND, message="Username not found")
-    except Exception as e:
-        logger.info(
-            f'An exception happened when handling login request "{content}": {e}'
-        )
-        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/user/fresh_login", methods=["POST"])
 @jwt_refresh_token_required
 @swag_from("swagger_docs/user_fresh_login.yml")
+@handle_internal_error
 def user_fresh_login():
     try:
         content = request.get_json(force=True)
@@ -171,16 +177,12 @@ def user_fresh_login():
         return app_response(status.BAD_REQUEST, message="Invalid request")
     except DatabaseQueryError:
         return app_response(status.NOT_FOUND, message="User not found")
-    except Exception as e:
-        logger.info(
-            f'An exception happened when handling refresh login request "{content}": {e}'
-        )
-        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/user/refresh_access_token", methods=["POST"])
 @jwt_refresh_token_required
 @swag_from("swagger_docs/user_refresh.yml")
+@handle_internal_error
 def user_refresh_access_token():
     user_id = get_jwt_identity()
     if not user_id:
@@ -192,23 +194,21 @@ def user_refresh_access_token():
 @app.route("/api/user/logout", methods=["DELETE"])
 @jwt_refresh_token_required
 @swag_from("swagger_docs/user_logout.yml")
+@handle_internal_error
 def user_logout():
     jti = get_raw_jwt().get('jti', None)
     user_id = get_jwt_identity()
     if not jti or not user_id:
         return app_response(status.UNAUTHORIZED, message="Unauthorized error")
-    try:
-        logout_request = LogoutRequest(jti)
-        logout(logout_request, context)
-        return app_response(status.OK, message="OK")
-    except Exception as e:
-        logger.info(f'An exception happened when handling logout request {logout_request}: {e}')
-        return app_response(status.INTERNAL_SERVER_ERROR, message=f"Internal error")
+    logout_request = LogoutRequest(jti)
+    logout(logout_request, context)
+    return app_response(status.OK, message="OK")
 
 
 @app.route("/api/user/update", methods=["POST"])
 @jwt_required
 @swag_from("swagger_docs/user_update.yml")
+@handle_internal_error
 def user_update():
     try:
         user_id = get_jwt_identity()
@@ -218,14 +218,12 @@ def user_update():
         return app_response(status.OK, message="Updated")
     except BadRequestError as e:
         return app_response(status.BAD_REQUEST, message=f"Bad request: {e}")
-    except Exception as e:
-        logger.info(f'An exception happened when handling logout request {update_request}: {e}')
-        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/user/update_protected", methods=["POST"])
 @fresh_jwt_required
 @swag_from("swagger_docs/user_update.yml")
+@handle_internal_error
 def user_update_secret():
     try:
         user_id = get_jwt_identity()
@@ -237,18 +235,17 @@ def user_update_secret():
         return app_response(status.BAD_REQUEST, message=f"Bad request: {e}")
     except DatabaseQueryError:
         return app_response(status.UNAUTHORIZED, "Unauthorized error: user not found")
-    except Exception as e:
-        logger.info(f'An exception happened when handling logout request {update_request}: {e}')
-        return app_response(status.INTERNAL_SERVER_ERROR, message="Internal error")
 
 
 @app.route("/api/project/<project_id>", methods=["GET"])
 @swag_from("swagger_docs/project_read.yml")
+@handle_internal_error
 def project_read(project_id):
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
 @app.route("/api/project/create", methods=["POST"])
+@handle_internal_error
 @swag_from("swagger_docs/project_create.yml")
 def project_create():
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
