@@ -166,6 +166,7 @@ def user_login():
 @app.route("/api/user/fresh_login", methods=["POST"])
 @jwt_refresh_token_required
 @swag_from("swagger_docs/user_fresh_login.yml")
+@handle_internal_error
 def user_fresh_login():
     try:
         content = request.get_json(force=True)
@@ -181,6 +182,7 @@ def user_fresh_login():
 @app.route("/api/user/refresh_access_token", methods=["POST"])
 @jwt_refresh_token_required
 @swag_from("swagger_docs/user_refresh.yml")
+@handle_internal_error
 def user_refresh_access_token():
     user_id = get_jwt_identity()
     if not user_id:
@@ -192,6 +194,7 @@ def user_refresh_access_token():
 @app.route("/api/user/logout", methods=["DELETE"])
 @jwt_refresh_token_required
 @swag_from("swagger_docs/user_logout.yml")
+@handle_internal_error
 def user_logout():
     jti = get_raw_jwt().get('jti', None)
     user_id = get_jwt_identity()
@@ -205,6 +208,7 @@ def user_logout():
 @app.route("/api/user/update", methods=["POST"])
 @jwt_required
 @swag_from("swagger_docs/user_update.yml")
+@handle_internal_error
 def user_update():
     try:
         user_id = get_jwt_identity()
@@ -219,6 +223,7 @@ def user_update():
 @app.route("/api/user/update_protected", methods=["POST"])
 @fresh_jwt_required
 @swag_from("swagger_docs/user_update.yml")
+@handle_internal_error
 def user_update_secret():
     try:
         user_id = get_jwt_identity()
@@ -234,11 +239,13 @@ def user_update_secret():
 
 @app.route("/api/project/<project_id>", methods=["GET"])
 @swag_from("swagger_docs/project_read.yml")
+@handle_internal_error
 def project_read(project_id):
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
 
 
 @app.route("/api/project/create", methods=["POST"])
+@handle_internal_error
 @swag_from("swagger_docs/project_create.yml")
 def project_create():
     return app_response(status.FORBIDDEN, message=UNSUPPORTED)
