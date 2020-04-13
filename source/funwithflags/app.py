@@ -4,7 +4,7 @@ import traceback
 
 from flask import Flask
 from flask import jsonify, request, make_response
-from flasgger import swag_from, Swagger
+from flask_cors import CORS
 from flask_jwt_extended import (
     fresh_jwt_required,
     get_raw_jwt,
@@ -13,6 +13,7 @@ from flask_jwt_extended import (
     jwt_refresh_token_required,
     jwt_required
 )
+from flasgger import swag_from, Swagger
 
 from funwithflags.definitions import (RegisterRequest, LoginRequest, LogoutRequest, FreshLoginRequest,
                                       UserUpdateRequest)
@@ -34,6 +35,9 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = REFRESH_EXPIRES
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['refresh']  # Only check refresh token
 jwt = JWTManager(app)
+
+# Setup CORS
+CORS(app)
 
 
 @jwt.token_in_blacklist_loader
