@@ -154,10 +154,11 @@ def user_login():
     try:
         content = request.get_json(force=True)
         login_request = LoginRequest(username=content["username"], password=content["password"])
-        username, access_token, refresh_token = login(login_request, context)
+        user_id, username, access_token, refresh_token = login(login_request, context)
         return app_response(
             status.OK,
             message="OK",
+            user_id=user_id,
             username=username,
             access_token=access_token,
             refresh_token=refresh_token)
