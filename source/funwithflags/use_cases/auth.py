@@ -30,8 +30,8 @@ def register(request: RegisterRequest, context: Context):
 
 def login(request: LoginRequest, context: Context) -> (str, str, str):
     """Given user login request, check if provided username and password are valid. If yes, provide a tuple consisting
-    username, access token and refresh token. If username doesn't exist, raise `DatabaseQueryError`; if username is
-    valid but password doesn't match, raise `BadRequestError`.
+    user_id, username, access token and refresh token. If username doesn't exist, raise `DatabaseQueryError`; if
+    username is valid but password doesn't match, raise `BadRequestError`.
     """
     user = context.postgres_gateway.read_user(username=request.username)
     if hash_password_with_salt(request.password, user.salt) != user.password:
@@ -40,7 +40,7 @@ def login(request: LoginRequest, context: Context) -> (str, str, str):
     refresh_token = flask_jwt_extended.create_refresh_token(identity=user.user_id)
     context.redis_gateway.set(flask_jwt_extended.get_jti(encoded_token=access_token), "login", ACCESS_EXPIRES * 1.2)
     context.redis_gateway.set(flask_jwt_extended.get_jti(encoded_token=refresh_token), "login", REFRESH_EXPIRES * 1.2)
-    return request.username, access_token, refresh_token
+    return user.user_id, user.username, access_token, refresh_token
 
 
 def fresh_login(request: FreshLoginRequest, context: Context) -> str:

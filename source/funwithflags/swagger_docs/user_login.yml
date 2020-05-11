@@ -25,6 +25,9 @@ responses:
                 schema:
                     type: object
                     properties:
+                        user_id:
+                            type: int
+                            example: 123
                         username:
                             type: string
                             example: 'username'
